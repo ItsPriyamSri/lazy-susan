@@ -34,7 +34,8 @@ pnpm start      # http://localhost:4757
 says so.
 
 ```bash
-pnpm test       # 35 unit tests: resolver, essay check, journal, ledger, reader, tracing
+pnpm test       # 76 tests: resolver, essay check, journal, ledger, reader, tracing, portal,
+                #           token checks, voice, answers mirror, deployment blueprint
 pnpm report     # every number quoted in the write-up, computed from these files
 ```
 
@@ -48,6 +49,11 @@ pnpm report     # every number quoted in the write-up, computed from these files
 | `providers/gemma` | Node | the local model: form labels, and the paragraph |
 | `providers/temporal` | Node | the night as a durable workflow, one activity per document |
 | `providers/sentry` | Node | tracing, off unless `SENTRY_DSN` is set |
+| `providers/browserbase` | Node | types a resolved form into a page, locally or in a hosted browser |
+| `providers/auth0` | Node | verifies bearer tokens when a tenant is configured |
+| `providers/elevenlabs` | Node | reads the morning list aloud, when a key exists |
+| `providers/atlas` | Node | an off-machine copy of the answers you typed |
+| `providers/render` | Node | reads the deployment blueprint so the health route can report it |
 | `apps/brain` | Hono | reads the folder, keeps the journal, fills PDF and HTML |
 | `apps/web` | React | the morning list, the page peek, the ledger |
 
@@ -143,22 +149,33 @@ file. It exists so the reader can be scored instead of admired.
 ## What is not built
 
 - No OCR. A photograph of a page is reported as unreadable, not guessed at.
-- No form filling in a browser. The PDF is written with `pdf-lib`; the HTML form is written by
-  setting attributes. Automating somebody's portal is a different project with different ethics.
-- No cloud. Nothing leaves the machine: not the documents, not the model call, not the trace.
-  Temporal runs as a local dev server on `localhost:7233`.
+- No portal automation against somebody else's site. A browser path exists for a page you point it
+  at, and it fills the controls it was given and leaves the rest alone; it does not log in to a
+  bank, and it does not press submit.
+- No cloud by default. Nothing leaves the machine unless a key is set: not the documents, not the
+  model call, not the trace. Temporal runs as a local dev server on `localhost:7233`.
 - The model runs on this laptop, which is a slow laptop. A form mapping takes between 78 and 152
   seconds here. That is why the answers are cached and the cache is committed.
 
 ## Partner technology
 
+Every row below is the same shape: an optional provider with a local path that runs without an
+account, a contract test that exercises the real code path, and a key that switches it on. Nothing
+is claimed as live until I have run it against the real service and can say what it did.
+
 | | Status |
 |---|---|
 | **Gemma** (Ollama, `gemma3:1b`) | demonstrated: 39 form labels mapped, paragraph drafted, both measured above |
 | **Temporal** | demonstrated: `nightRun`, one activity per document, killed mid-run and resumed with zero duplicate rows |
+| **Browserbase** | wired and tested: `fillPortal` types a resolved form into a real page, reads each value back out of the DOM, attaches files, returns a screenshot. Six tests drive the actual enrolment form in a local Chrome; with `BROWSERBASE_API_KEY` the same code path connects to a Browserbase session instead |
+| **Auth0** | wired and tested: when `AUTH0_DOMAIN` and `AUTH0_AUDIENCE` exist, every `/api` route except the health check verifies the bearer token against the tenant's JWKS, issuer, audience and expiry. Nine tests sign real tokens with a generated key pair and check the ways a token should fail |
+| **ElevenLabs** | wired and tested: the open fields become a short spoken script. With a key the audio comes from `ELEVENLABS_API_KEY`; without one the API returns the same script and the page reads it with its own voice, so the button is never dead |
+| **MongoDB Atlas** | wired and tested against a real `mongod`: the answers you typed are mirrored, keyed by a content hash, and replayed on a new machine. The documents are not mirrored, because they never left the folder. Set `MONGODB_URI` |
+| **Render** | `Dockerfile` + `render.yaml`, built and run here: the container serves the page, the three forms and the health route. `/api/health` reports which optional keys the deployment has, as booleans |
 | **Sentry** | wired and tested: spans per document, per form run, per filling; no-op without `SENTRY_DSN`. A test points the SDK at a DSN on localhost and asserts the envelope carries the span name. No screenshot, because that needs an account I do not have |
 
-No other partner is claimed. Installing an SDK is not a demonstration.
+No other partner is claimed. Installing an SDK is not a demonstration, and neither is a key that
+arrives after the screenshot was taken.
 
 ## Licence
 
