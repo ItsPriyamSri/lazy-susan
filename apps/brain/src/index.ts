@@ -6,6 +6,7 @@ import { serve } from "@hono/node-server";
 import { serveStatic } from "@hono/node-server/serve-static";
 import { KEY } from "@lazy-susan/core";
 import { initSentry, withSpan } from "@lazy-susan/sentry";
+import { NoVoiceKey, briefScript, speak } from "@lazy-susan/elevenlabs";
 import { fillHtml, fillPdf } from "./fill.js";
 import { pagePng } from "./pages.js";
 import { CORPUS, OUT, essayFor, loadState, rulesWith, runOf } from "./state.js";
@@ -130,6 +131,33 @@ app.post("/api/essay", async (c) => {
     essayFor(state, body.formId, question, body.allowModel ?? true),
   );
   return c.json(view);
+});
+
+app.get("/api/brief/:id", async (c) => {
+  const formId = c.req.param("id");
+  const spec = state.forms.find((f) => f.id === formId);
+  if (!spec) return c.notFound();
+
+  const run = runOf(state, formId, rulesWith(undefined));
+  const open = run.fields
+    .filter((f) => f.verdict !== "FILLED")
+    .map((f) => ({ label: f.field.label, reason: f.reason ?? "" }));
+
+  const script = briefScript({ formTitle: spec.title, open });
+
+  try {
+    const speech = await withSpan("read the morning list", "voice", async () => speak({ text: script }));
+    return c.body(new Uint8Array(speech.audio), 200, {
+      "content-type": speech.contentType,
+      "x-voice": `${speech.voiceId}/${speech.modelId}`,
+    });
+  } catch (err) {
+    if (err instanceof NoVoiceKey) {
+      // No key: hand the script back and let the browser read it itself.
+      return c.json({ spoken: false, script });
+    }
+    throw err;
+  }
 });
 
 app.post("/api/fill/:id", async (c) => {

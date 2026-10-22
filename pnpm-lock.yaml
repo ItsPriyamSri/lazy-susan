@@ -23,6 +23,9 @@ importers:
       '@lazy-susan/core':
         specifier: workspace:*
         version: link:../../packages/core
+      '@lazy-susan/elevenlabs':
+        specifier: workspace:*
+        version: link:../../providers/elevenlabs
       '@lazy-susan/gemma':
         specifier: workspace:*
         version: link:../../providers/gemma
@@ -111,6 +114,18 @@ importers:
       playwright-core:
         specifier: ^1.64.1
         version: 1.64.1
+    devDependencies:
+      '@types/node':
+        specifier: ^22.9.0
+        version: 22.20.5
+      typescript:
+        specifier: ^5.6.3
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.4
+        version: 2.1.9(@types/node@22.20.5)(terser@5.51.2)
+
+  providers/elevenlabs:
     devDependencies:
       '@types/node':
         specifier: ^22.9.0

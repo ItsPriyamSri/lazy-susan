@@ -17,7 +17,8 @@
     "@lazy-susan/reader": "workspace:*",
     "hono": "^4.6.12",
     "pdf-lib": "^1.17.1",
-    "@lazy-susan/sentry": "workspace:*"
+    "@lazy-susan/sentry": "workspace:*",
+    "@lazy-susan/elevenlabs": "workspace:*"
   },
   "devDependencies": {
     "tsx": "^4.19.2",

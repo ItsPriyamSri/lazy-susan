@@ -341,3 +341,16 @@ h1 { font: 600 34px/1.12 var(--serif); letter-spacing: -0.015em; margin: 0; max-
 }
 .flink:hover { text-decoration-color: var(--green); }
 .flink.muted { color: var(--muted); text-decoration: none; }
+
+.ghost {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--muted);
+  font: 12px/1 var(--sans);
+  padding: 7px 11px;
+  border-radius: 6px;
+  margin-left: auto;
+  align-self: flex-start;
+}
+.ghost:hover:not(:disabled) { color: var(--ink); border-color: var(--ink); }
+.ghost:disabled { opacity: 0.55; }

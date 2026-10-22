@@ -183,6 +183,7 @@ export default function App(): JSX.Element {
         <div className="section-head">
           <h2>Needs you</h2>
           <p>{open.length === 0 ? "Nothing. The form is ready for a person to sign." : "Answer, choose, or type. Each answer is kept for the next form."}</p>
+          {open.length > 0 && <Speak formId={form.id} />}
         </div>
 
         <div className="cards">
@@ -290,6 +291,42 @@ function Tally({ verdict, n, label }: { verdict: string; n: number; label: strin
       <div className="n">{n}</div>
       <div className="k">{label}</div>
     </div>
+  );
+}
+
+function Speak({ formId }: { formId: string }): JSX.Element {
+  const [state, setState] = useState<"idle" | "loading" | "playing">("idle");
+
+  async function readAloud() {
+    setState("loading");
+    try {
+      const res = await fetch(`/api/brief/${formId}`);
+
+      // The server answers with audio when it has a voice, and with the script
+      // when it does not. Either way the words are the app's own.
+      if (res.headers.get("content-type")?.includes("json")) {
+        const body = (await res.json()) as { script: string };
+        const utterance = new SpeechSynthesisUtterance(body.script);
+        utterance.rate = 1.02;
+        utterance.onend = () => setState("idle");
+        window.speechSynthesis.speak(utterance);
+        setState("playing");
+        return;
+      }
+
+      const audio = new Audio(URL.createObjectURL(await res.blob()));
+      audio.onended = () => setState("idle");
+      await audio.play();
+      setState("playing");
+    } catch {
+      setState("idle");
+    }
+  }
+
+  return (
+    <button className="ghost" onClick={readAloud} disabled={state !== "idle"}>
+      {state === "idle" ? "Read it to me" : state === "loading" ? "Finding a voice…" : "Reading…"}
+    </button>
   );
 }
 
