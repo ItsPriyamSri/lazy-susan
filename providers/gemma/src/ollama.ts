@@ -27,8 +27,8 @@ const ENDPOINT = process.env.OLLAMA_URL ?? "http://localhost:11434";
 /**
  * A local model call with a cache.
  *
- * The cache is the point: the run a judge opens in a browser has to be the same
- * run that happened on the laptop. Same prompt, same model, same answer.
+ * The cache is the point: the run somebody opens in a browser has to be the
+ * same run that happened on the laptop. Same prompt, same model, same answer.
  */
 export async function generate(prompt: string, opts: GenerateOptions = {}): Promise<Cached> {
   const model = opts.model ?? DEFAULT_MODEL;

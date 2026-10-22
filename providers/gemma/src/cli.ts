@@ -11,8 +11,8 @@ const CORPUS = resolve(HERE, "../../../packages/corpus");
 /**
  * Warms the cache with one real run of the local model.
  *
- * Everything the app does afterwards reads these files, so a judge on a laptop
- * with no model installed still sees the same answers.
+ * Everything the app does afterwards reads these files, so a laptop with no
+ * model installed still sees the same answers.
  */
 async function main(): Promise<void> {
   const forms = ["bank-account", "enrolment", "scholarship"];

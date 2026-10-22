@@ -13,9 +13,8 @@ const WEB_PAGES = join(HERE, "../../web/public/pages");
  * Freezes one run into a file the browser can replay.
  *
  * The rules, the verdicts and the essay check all run again in the browser from
- * the same facts, so a judge moving the tolerance slider is not watching a
- * recording. Only the model's own words are frozen, because a laptop is not a
- * server.
+ * the same facts, so moving the tolerance slider is not watching a recording.
+ * Only the model's own words are frozen, because a laptop is not a server.
  */
 async function main(): Promise<void> {
   const state = loadState();
