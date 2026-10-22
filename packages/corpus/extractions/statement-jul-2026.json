@@ -1,0 +1,97 @@
+{
+  "file": "statement-jul-2026.pdf",
+  "title": "Statement of Account",
+  "kind": "address_proof",
+  "issued": "2026-07-01",
+  "pages": 1,
+  "confidence": 0.98,
+  "digest": "sha256:4471fd335247b84f97f3be8839a7a9100c3af1ffc9df8e1bb9745aaf69945dc2",
+  "readable": true,
+  "facts": [
+    {
+      "key": "person.full_name",
+      "value": "PRIYAM SHARMA",
+      "source": {
+        "kind": "document",
+        "file": "statement-jul-2026.pdf",
+        "page": 0,
+        "bbox": {
+          "x": 0.3528,
+          "y": 0.1379,
+          "w": 0.1581,
+          "h": 0.0121
+        },
+        "confidence": 0.98
+      }
+    },
+    {
+      "key": "finance.account_number",
+      "value": "50100234567890",
+      "source": {
+        "kind": "document",
+        "file": "statement-jul-2026.pdf",
+        "page": 0,
+        "bbox": {
+          "x": 0.3528,
+          "y": 0.164,
+          "w": 0.1438,
+          "h": 0.0121
+        },
+        "confidence": 0.98
+      }
+    },
+    {
+      "key": "address.current.line1",
+      "value": "44 MG Road",
+      "source": {
+        "kind": "document",
+        "file": "statement-jul-2026.pdf",
+        "page": 0,
+        "bbox": {
+          "x": 0.3528,
+          "y": 0.1902,
+          "w": 0.1119,
+          "h": 0.0121
+        },
+        "confidence": 0.98
+      }
+    },
+    {
+      "key": "address.current.city",
+      "value": "Pune",
+      "source": {
+        "kind": "document",
+        "file": "statement-jul-2026.pdf",
+        "page": 0,
+        "bbox": {
+          "x": 0.4698,
+          "y": 0.1902,
+          "w": 0.0452,
+          "h": 0.0121
+        },
+        "confidence": 0.98
+      }
+    },
+    {
+      "key": "finance.bank_name",
+      "value": "Testland Bank",
+      "source": {
+        "kind": "document",
+        "file": "statement-jul-2026.pdf",
+        "page": 0,
+        "bbox": {
+          "x": 0.0941,
+          "y": 0.0588,
+          "w": 0.1285,
+          "h": 0.0099
+        },
+        "confidence": 0.98
+      }
+    }
+  ],
+  "stats": {
+    "lines": 14,
+    "labelled": 5,
+    "unplaced": []
+  }
+}

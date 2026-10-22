@@ -1,0 +1,145 @@
+{
+  "generatedBy": "packages/corpus/tools/make_docs.py",
+  "submissionDate": "2026-10-22",
+  "documents": [
+    {
+      "file": "passport.pdf",
+      "kind": "identity",
+      "issued": "2022-02-02",
+      "readable": true,
+      "facts": {
+        "person.full_name": "PRIYAM SHARMA",
+        "person.dob": "14 MAR 2003",
+        "person.nationality": "TESTLANDI",
+        "identity.id_number": "T1234567",
+        "identity.id_issued": "02 FEB 2022",
+        "identity.id_expiry": "01 FEB 2032"
+      }
+    },
+    {
+      "file": "marksheet-2026.pdf",
+      "kind": "education",
+      "issued": "2026-06-30",
+      "readable": true,
+      "facts": {
+        "person.full_name": "PRIYAM SHARMA",
+        "education.programme": "B.Tech Computer Engineering",
+        "education.year": "3",
+        "education.gpa": "8.6",
+        "education.institution": "Testland Institute of Technology"
+      }
+    },
+    {
+      "file": "marksheet-2025.pdf",
+      "kind": "education",
+      "issued": "2025-06-28",
+      "readable": true,
+      "facts": {
+        "person.full_name": "PRIYAM SHARMA",
+        "education.programme": "B.Tech Computer Engineering",
+        "education.institution": "Testland Institute of Technology"
+      }
+    },
+    {
+      "file": "enrolment-letter.pdf",
+      "kind": "education",
+      "issued": "2026-08-01",
+      "readable": true,
+      "facts": {
+        "person.full_name": "PRIYAM SHARMA",
+        "education.programme": "B.Tech Computer Engineering",
+        "education.year": "3",
+        "education.institution": "Testland Institute of Technology"
+      }
+    },
+    {
+      "file": "statement-jul-2026.pdf",
+      "kind": "address_proof",
+      "issued": "2026-07-01",
+      "readable": true,
+      "facts": {
+        "person.full_name": "PRIYAM SHARMA",
+        "address.current.line1": "44 MG Road",
+        "address.current.city": "Pune",
+        "finance.account_number": "50100234567890",
+        "finance.bank_name": "Testland Bank"
+      }
+    },
+    {
+      "file": "statement-aug-2025.pdf",
+      "kind": "address_proof",
+      "issued": "2025-08-04",
+      "readable": true,
+      "facts": {
+        "person.full_name": "PRIYAM SHARMA",
+        "address.current.line1": "44 MG Road",
+        "address.current.city": "Pune"
+      }
+    },
+    {
+      "file": "utility-bill-may-2026.pdf",
+      "kind": "address_proof",
+      "issued": "2026-05-02",
+      "readable": true,
+      "facts": {
+        "person.full_name": "PRIYAM SHARMA",
+        "address.current.line1": "7 Lake View Road",
+        "address.current.city": "Pune",
+        "address.current.postcode": "411045"
+      }
+    },
+    {
+      "file": "lease-2024.pdf",
+      "kind": "other",
+      "issued": "2024-06-15",
+      "readable": true,
+      "facts": {
+        "person.full_name": "PRIYAM SHARMA",
+        "address.previous.line1": "12 Nehru Road"
+      }
+    },
+    {
+      "file": "internship-offer.pdf",
+      "kind": "income_proof",
+      "issued": "2026-08-10",
+      "readable": true,
+      "facts": {
+        "person.full_name": "PRIYAM SHARMA",
+        "employment.role": "Software Engineering Intern",
+        "employment.employer": "Testland Systems Private Limited",
+        "employment.income_annual": "INR 480000"
+      }
+    },
+    {
+      "file": "scholarship-award.pdf",
+      "kind": "other",
+      "issued": "2026-09-01",
+      "readable": true,
+      "facts": {
+        "person.full_name": "PRIYAM SHARMA",
+        "education.institution": "Testland Institute of Technology",
+        "education.programme": "B.Tech Computer Engineering"
+      }
+    },
+    {
+      "file": "reference-letter-scan.pdf",
+      "kind": "reference",
+      "issued": "2026-04-10",
+      "readable": false,
+      "facts": {
+        "referee.1.name": "Dr A. Kulkarni",
+        "referee.1.phone": "+91 98200 11223"
+      }
+    },
+    {
+      "file": "marksheet-photo.pdf",
+      "kind": "education",
+      "issued": "2026-01-12",
+      "readable": false,
+      "facts": {
+        "education.year": "2",
+        "education.institution": "Testland Institute of Technology"
+      }
+    }
+  ]
+}

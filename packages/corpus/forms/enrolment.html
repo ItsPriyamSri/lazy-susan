@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Continuing enrolment form — Testland Institute of Technology</title>
+<style>
+  :root { --ink:#14130f; --muted:#6b675e; --line:#d9d5ca; --paper:#fbfaf6; --accent:#2f6f4f; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:#efece3; color:var(--ink);
+         font:16px/1.55 "Iowan Old Style", "Palatino Linotype", Georgia, serif; }
+  main { max-width: 720px; margin: 32px auto; background:var(--paper); padding: 40px 44px 56px;
+          border:1px solid var(--line); }
+  .kicker { font: 600 11px/1.4 ui-monospace, "SF Mono", monospace; letter-spacing:.12em;
+             text-transform:uppercase; color:var(--accent); }
+  h1 { font-size: 30px; line-height:1.2; margin:.35em 0 .2em; }
+  .lede { color:var(--muted); margin:0 0 28px; max-width:52ch; }
+  .row { display:grid; grid-template-columns: 240px 1fr; gap:16px; align-items:center;
+          padding:12px 0; border-bottom:1px solid var(--line); }
+  .label { font-size:14px; }
+  .req { font: 10px/1 ui-monospace, monospace; color:var(--muted); text-transform:uppercase;
+          letter-spacing:.08em; }
+  input { font: 15px/1.4 inherit; padding:8px 10px; border:1px solid var(--line);
+           background:#fff; color:var(--ink); width:100%; }
+  input:focus { outline:2px solid var(--accent); outline-offset:1px; }
+  footer { margin-top:28px; font-size:13px; color:var(--muted); }
+  button { font: 600 14px/1 inherit; padding:12px 18px; background:var(--ink); color:#fff;
+            border:0; cursor:pointer; }
+</style>
+</head>
+<body>
+<main>
+  <p class="kicker">Testland Institute of Technology · Office of Academic Affairs</p>
+  <h1>Continuing enrolment form</h1>
+  <p class="lede">Use this form to confirm your enrolment for the next academic year. Every
+  required field must be completed. Documents must be attached as PDF or image files.</p>
+  <form id="enrolment" novalidate>
+      <label class="row" for="full_name">
+        <span class="label">Full name <span class="req">required</span></span>
+        <input type="text" id="full_name" name="full_name">
+      </label>
+      <label class="row" for="dob">
+        <span class="label">Date of birth <span class="req">required</span></span>
+        <input type="date" id="dob" name="dob">
+      </label>
+      <label class="row" for="programme">
+        <span class="label">Programme <span class="req">required</span></span>
+        <input type="text" id="programme" name="programme">
+      </label>
+      <label class="row" for="institution">
+        <span class="label">Institution <span class="req">required</span></span>
+        <input type="text" id="institution" name="institution">
+      </label>
+      <label class="row" for="year">
+        <span class="label">Year of study <span class="req">required</span></span>
+        <input type="text" id="year" name="year">
+      </label>
+      <label class="row" for="gpa">
+        <span class="label">Cumulative grade point average <span class="req">required</span></span>
+        <input type="text" id="gpa" name="gpa">
+      </label>
+      <label class="row" for="address">
+        <span class="label">Residential address <span class="req">required</span></span>
+        <input type="text" id="address" name="address">
+      </label>
+      <label class="row" for="phone">
+        <span class="label">Mobile number <span class="req">required</span></span>
+        <input type="tel" id="phone" name="phone" autocomplete="tel">
+      </label>
+      <label class="row" for="previous_address">
+        <span class="label">Previous address</span>
+        <input type="text" id="previous_address" name="previous_address">
+      </label>
+      <label class="row" for="referee_name">
+        <span class="label">Referee name <span class="req">required</span></span>
+        <input type="text" id="referee_name" name="referee_name">
+      </label>
+      <label class="row" for="attach_id">
+        <span class="label">Attach identity document <span class="req">required</span></span>
+        <input type="file" id="attach_id" name="attach_id" accept=".pdf,.png,.jpg">
+      </label>
+      <label class="row" for="attach_marksheet">
+        <span class="label">Attach most recent statement of grades <span class="req">required</span></span>
+        <input type="file" id="attach_marksheet" name="attach_marksheet" accept=".pdf,.png,.jpg">
+      </label>
+  </form>
+  <footer>Form AA-2. This page performs no submission; it is a fixture for Lazy Susan.</footer>
+</main>
+</body>
+</html>

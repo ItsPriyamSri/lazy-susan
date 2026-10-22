@@ -1,0 +1,15 @@
+{
+  "file": "reference-letter-scan.pdf",
+  "title": "reference-letter-scan",
+  "kind": "reference",
+  "pages": 1,
+  "confidence": 0.05,
+  "digest": "sha256:34828c524fe8338830f7648321707595fa3b3dbe565cdee360c0fab8f023ec7d",
+  "readable": false,
+  "facts": [],
+  "stats": {
+    "lines": 0,
+    "labelled": 0,
+    "unplaced": []
+  }
+}

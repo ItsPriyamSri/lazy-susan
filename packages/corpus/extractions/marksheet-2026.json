@@ -1,0 +1,97 @@
+{
+  "file": "marksheet-2026.pdf",
+  "title": "Statement of Grades",
+  "kind": "education",
+  "issued": "2026-06-30",
+  "pages": 1,
+  "confidence": 0.98,
+  "digest": "sha256:02ca5bc243c41976b5e852a48fa81cb0ae02c8fdb832c0c3bbeb806967e2ad4b",
+  "readable": true,
+  "facts": [
+    {
+      "key": "person.full_name",
+      "value": "PRIYAM SHARMA",
+      "source": {
+        "kind": "document",
+        "file": "marksheet-2026.pdf",
+        "page": 0,
+        "bbox": {
+          "x": 0.3528,
+          "y": 0.1379,
+          "w": 0.1581,
+          "h": 0.0121
+        },
+        "confidence": 0.98
+      }
+    },
+    {
+      "key": "education.programme",
+      "value": "B.Tech Computer Engineering",
+      "source": {
+        "kind": "document",
+        "file": "marksheet-2026.pdf",
+        "page": 0,
+        "bbox": {
+          "x": 0.3528,
+          "y": 0.164,
+          "w": 0.2659,
+          "h": 0.0121
+        },
+        "confidence": 0.98
+      }
+    },
+    {
+      "key": "education.year",
+      "value": "3",
+      "source": {
+        "kind": "document",
+        "file": "marksheet-2026.pdf",
+        "page": 0,
+        "bbox": {
+          "x": 0.3528,
+          "y": 0.1902,
+          "w": 0.0103,
+          "h": 0.0121
+        },
+        "confidence": 0.98
+      }
+    },
+    {
+      "key": "education.gpa",
+      "value": "8.6",
+      "source": {
+        "kind": "document",
+        "file": "marksheet-2026.pdf",
+        "page": 0,
+        "bbox": {
+          "x": 0.3528,
+          "y": 0.2424,
+          "w": 0.0257,
+          "h": 0.0121
+        },
+        "confidence": 0.98
+      }
+    },
+    {
+      "key": "education.institution",
+      "value": "Testland Institute of Technology",
+      "source": {
+        "kind": "document",
+        "file": "marksheet-2026.pdf",
+        "page": 0,
+        "bbox": {
+          "x": 0.0941,
+          "y": 0.0588,
+          "w": 0.299,
+          "h": 0.0099
+        },
+        "confidence": 0.98
+      }
+    }
+  ],
+  "stats": {
+    "lines": 18,
+    "labelled": 5,
+    "unplaced": []
+  }
+}

@@ -1,0 +1,96 @@
+{
+  "id": "enrolment",
+  "title": "Continuing enrolment form",
+  "kind": "html",
+  "file": "enrolment.html",
+  "submissionDate": "2026-10-22",
+  "kicker": "Testland Institute of Technology",
+  "fields": [
+    {
+      "id": "full_name",
+      "label": "Full name",
+      "key": "person.full_name",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "dob",
+      "label": "Date of birth",
+      "key": "person.dob",
+      "type": "date",
+      "required": true
+    },
+    {
+      "id": "programme",
+      "label": "Programme",
+      "key": "education.programme",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "institution",
+      "label": "Institution",
+      "key": "education.institution",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "year",
+      "label": "Year of study",
+      "key": "education.year",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "gpa",
+      "label": "Cumulative grade point average",
+      "key": "education.gpa",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "address",
+      "label": "Residential address",
+      "key": "address.current.line1",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "phone",
+      "label": "Mobile number",
+      "key": "person.phone.mobile",
+      "type": "tel",
+      "required": true
+    },
+    {
+      "id": "previous_address",
+      "label": "Previous address",
+      "key": "address.previous.line1",
+      "type": "text",
+      "required": false
+    },
+    {
+      "id": "referee_name",
+      "label": "Referee name",
+      "key": "referee.1.name",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "attach_id",
+      "label": "Attach identity document",
+      "key": "documents.identity",
+      "type": "file",
+      "required": true,
+      "accept": "identity"
+    },
+    {
+      "id": "attach_marksheet",
+      "label": "Attach most recent statement of grades",
+      "key": "documents.education",
+      "type": "file",
+      "required": true,
+      "accept": "education"
+    }
+  ]
+}

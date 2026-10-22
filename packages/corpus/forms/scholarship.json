@@ -1,0 +1,104 @@
+{
+  "id": "scholarship",
+  "title": "Merit Scholarship application 2026",
+  "kind": "pdf",
+  "file": "scholarship.pdf",
+  "submissionDate": "2026-10-22",
+  "kicker": "Testland Foundation",
+  "fields": [
+    {
+      "id": "full_name",
+      "label": "Full name",
+      "key": "person.full_name",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "dob",
+      "label": "Date of birth",
+      "key": "person.dob",
+      "type": "date",
+      "required": true
+    },
+    {
+      "id": "programme",
+      "label": "Programme",
+      "key": "education.programme",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "institution",
+      "label": "Institution",
+      "key": "education.institution",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "gpa",
+      "label": "Cumulative grade point average",
+      "key": "education.gpa",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "annual_income",
+      "label": "Annual household income (INR)",
+      "key": "employment.income_annual",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "address",
+      "label": "Residential address",
+      "key": "address.current.line1",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "phone",
+      "label": "Mobile number",
+      "key": "person.phone.mobile",
+      "type": "tel",
+      "required": true
+    },
+    {
+      "id": "referee_name",
+      "label": "Referee name",
+      "key": "referee.1.name",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "referee_phone",
+      "label": "Referee mobile",
+      "key": "referee.1.phone",
+      "type": "tel",
+      "required": true
+    },
+    {
+      "id": "attach_id",
+      "label": "Attach identity document",
+      "key": "documents.identity",
+      "type": "file",
+      "required": true,
+      "accept": "identity"
+    },
+    {
+      "id": "attach_income",
+      "label": "Attach proof of income",
+      "key": "documents.income_proof",
+      "type": "file",
+      "required": true,
+      "accept": "income_proof"
+    },
+    {
+      "id": "essay",
+      "label": "In your own words: why are you a good fit for this scholarship?",
+      "key": "essay.scholarship",
+      "type": "textarea",
+      "required": true,
+      "maxWords": 200
+    }
+  ]
+}

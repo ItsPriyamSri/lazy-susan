@@ -1,0 +1,81 @@
+{
+  "file": "utility-bill-may-2026.pdf",
+  "title": "Electricity Bill",
+  "kind": "address_proof",
+  "issued": "2026-05-02",
+  "pages": 1,
+  "confidence": 0.98,
+  "digest": "sha256:e5559dbcf63a6519e910b129ab4f2b1d4f686fbd1d9ddbd95233e9cfa4db57c9",
+  "readable": true,
+  "facts": [
+    {
+      "key": "person.full_name",
+      "value": "PRIYAM SHARMA",
+      "source": {
+        "kind": "document",
+        "file": "utility-bill-may-2026.pdf",
+        "page": 0,
+        "bbox": {
+          "x": 0.3528,
+          "y": 0.1379,
+          "w": 0.1581,
+          "h": 0.0121
+        },
+        "confidence": 0.98
+      }
+    },
+    {
+      "key": "address.current.line1",
+      "value": "7 Lake View Road",
+      "source": {
+        "kind": "document",
+        "file": "utility-bill-may-2026.pdf",
+        "page": 0,
+        "bbox": {
+          "x": 0.3528,
+          "y": 0.164,
+          "w": 0.1612,
+          "h": 0.0121
+        },
+        "confidence": 0.98
+      }
+    },
+    {
+      "key": "address.current.city",
+      "value": "Pune",
+      "source": {
+        "kind": "document",
+        "file": "utility-bill-may-2026.pdf",
+        "page": 0,
+        "bbox": {
+          "x": 0.5192,
+          "y": 0.164,
+          "w": 0.0452,
+          "h": 0.0121
+        },
+        "confidence": 0.98
+      }
+    },
+    {
+      "key": "address.current.postcode",
+      "value": "411045",
+      "source": {
+        "kind": "document",
+        "file": "utility-bill-may-2026.pdf",
+        "page": 0,
+        "bbox": {
+          "x": 0.5695,
+          "y": 0.164,
+          "w": 0.0616,
+          "h": 0.0121
+        },
+        "confidence": 0.98
+      }
+    }
+  ],
+  "stats": {
+    "lines": 11,
+    "labelled": 4,
+    "unplaced": []
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "file": "lease-2024.pdf",
+  "title": "Residential Tenancy Agreement",
+  "kind": "other",
+  "issued": "2024-06-15",
+  "pages": 1,
+  "confidence": 0.98,
+  "digest": "sha256:e22d88b175486d2d661fddaa870682d3682b41d1ee1f4597917871b3be516836",
+  "readable": true,
+  "facts": [
+    {
+      "key": "person.full_name",
+      "value": "PRIYAM SHARMA",
+      "source": {
+        "kind": "document",
+        "file": "lease-2024.pdf",
+        "page": 0,
+        "bbox": {
+          "x": 0.3528,
+          "y": 0.1379,
+          "w": 0.1581,
+          "h": 0.0121
+        },
+        "confidence": 0.98
+      }
+    },
+    {
+      "key": "address.previous.line1",
+      "value": "12 Nehru Road",
+      "source": {
+        "kind": "document",
+        "file": "lease-2024.pdf",
+        "page": 0,
+        "bbox": {
+          "x": 0.3528,
+          "y": 0.164,
+          "w": 0.1355,
+          "h": 0.0121
+        },
+        "confidence": 0.98
+      }
+    }
+  ],
+  "stats": {
+    "lines": 11,
+    "labelled": 2,
+    "unplaced": []
+  }
+}

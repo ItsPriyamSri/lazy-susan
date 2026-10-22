@@ -1,0 +1,110 @@
+{
+  "id": "bank-account",
+  "title": "Application for a savings account",
+  "kind": "pdf",
+  "file": "bank-account.pdf",
+  "submissionDate": "2026-10-22",
+  "kicker": "Testland Bank",
+  "fields": [
+    {
+      "id": "full_name",
+      "label": "Full name",
+      "key": "person.full_name",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "dob",
+      "label": "Date of birth",
+      "key": "person.dob",
+      "type": "date",
+      "required": true
+    },
+    {
+      "id": "nationality",
+      "label": "Nationality",
+      "key": "person.nationality",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "id_number",
+      "label": "Identity document number",
+      "key": "identity.id_number",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "id_expiry",
+      "label": "Identity document expiry",
+      "key": "identity.id_expiry",
+      "type": "date",
+      "required": true
+    },
+    {
+      "id": "address",
+      "label": "Residential address",
+      "key": "address.current.line1",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "city",
+      "label": "City",
+      "key": "address.current.city",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "postcode",
+      "label": "Postcode",
+      "key": "address.current.postcode",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "phone",
+      "label": "Mobile number",
+      "key": "person.phone.mobile",
+      "type": "tel",
+      "required": true
+    },
+    {
+      "id": "email",
+      "label": "Email address",
+      "key": "person.email",
+      "type": "email",
+      "required": true
+    },
+    {
+      "id": "occupation",
+      "label": "Occupation",
+      "key": "employment.role",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "annual_income",
+      "label": "Annual income (INR)",
+      "key": "employment.income_annual",
+      "type": "text",
+      "required": true
+    },
+    {
+      "id": "attach_id",
+      "label": "Attach identity document",
+      "key": "documents.identity",
+      "type": "file",
+      "required": true,
+      "accept": "identity"
+    },
+    {
+      "id": "attach_address",
+      "label": "Attach proof of address, issued within 3 months",
+      "key": "documents.address_proof",
+      "type": "file",
+      "required": true,
+      "accept": "address_proof"
+    }
+  ]
+}

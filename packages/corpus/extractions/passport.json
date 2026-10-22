@@ -1,0 +1,113 @@
+{
+  "file": "passport.pdf",
+  "title": "PASSPORT",
+  "kind": "identity",
+  "issued": "2022-02-02",
+  "pages": 1,
+  "confidence": 0.98,
+  "digest": "sha256:e08b90a2fba1947b1bb457f6c211082ed205c759268060899603de89c6332a9a",
+  "readable": true,
+  "facts": [
+    {
+      "key": "person.full_name",
+      "value": "PRIYAM SHARMA",
+      "source": {
+        "kind": "document",
+        "file": "passport.pdf",
+        "page": 0,
+        "bbox": {
+          "x": 0.3528,
+          "y": 0.1379,
+          "w": 0.1581,
+          "h": 0.0121
+        },
+        "confidence": 0.98
+      }
+    },
+    {
+      "key": "person.dob",
+      "value": "14 MAR 2003",
+      "source": {
+        "kind": "document",
+        "file": "passport.pdf",
+        "page": 0,
+        "bbox": {
+          "x": 0.3528,
+          "y": 0.164,
+          "w": 0.114,
+          "h": 0.0121
+        },
+        "confidence": 0.98
+      }
+    },
+    {
+      "key": "person.nationality",
+      "value": "TESTLANDI",
+      "source": {
+        "kind": "document",
+        "file": "passport.pdf",
+        "page": 0,
+        "bbox": {
+          "x": 0.3528,
+          "y": 0.2163,
+          "w": 0.1037,
+          "h": 0.0121
+        },
+        "confidence": 0.98
+      }
+    },
+    {
+      "key": "identity.id_number",
+      "value": "T1234567",
+      "source": {
+        "kind": "document",
+        "file": "passport.pdf",
+        "page": 0,
+        "bbox": {
+          "x": 0.3528,
+          "y": 0.2424,
+          "w": 0.0832,
+          "h": 0.0121
+        },
+        "confidence": 0.98
+      }
+    },
+    {
+      "key": "identity.id_issued",
+      "value": "02 FEB 2022",
+      "source": {
+        "kind": "document",
+        "file": "passport.pdf",
+        "page": 0,
+        "bbox": {
+          "x": 0.3528,
+          "y": 0.2686,
+          "w": 0.1089,
+          "h": 0.0121
+        },
+        "confidence": 0.98
+      }
+    },
+    {
+      "key": "identity.id_expiry",
+      "value": "01 FEB 2032",
+      "source": {
+        "kind": "document",
+        "file": "passport.pdf",
+        "page": 0,
+        "bbox": {
+          "x": 0.3528,
+          "y": 0.2947,
+          "w": 0.1089,
+          "h": 0.0121
+        },
+        "confidence": 0.98
+      }
+    }
+  ],
+  "stats": {
+    "lines": 13,
+    "labelled": 6,
+    "unplaced": []
+  }
+}
