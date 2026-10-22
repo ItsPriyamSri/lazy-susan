@@ -38,6 +38,9 @@ importers:
       '@lazy-susan/reader':
         specifier: workspace:*
         version: link:../../packages/reader
+      '@lazy-susan/render':
+        specifier: workspace:*
+        version: link:../../providers/render
       '@lazy-susan/sentry':
         specifier: workspace:*
         version: link:../../providers/sentry
@@ -190,6 +193,22 @@ importers:
       typescript:
         specifier: ^5.6.3
         version: 5.9.3
+
+  providers/render:
+    dependencies:
+      yaml:
+        specifier: ^2.7.0
+        version: 2.9.1
+    devDependencies:
+      '@types/node':
+        specifier: ^22.9.0
+        version: 22.20.5
+      typescript:
+        specifier: ^5.6.3
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.4
+        version: 2.1.9(@types/node@22.20.5)(terser@5.51.2)
 
   providers/sentry:
     dependencies:
@@ -2543,6 +2562,11 @@ packages:
   yallist@3.1.1:
     resolution: {integrity: sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==}
 
+  yaml@2.9.1:
+    resolution: {integrity: sha512-3NxN8+78OdzbT7C/WjGsyfPAtJaN3FNDsWxv7Y7mcDsT/oOmgW8BpyQQFFBnvZE3j9Y2Sdz1ULFLezL7Eb2yFw==}
+    engines: {node: '>= 14.6'}
+    hasBin: true
+
   yargs-parser@21.1.1:
     resolution: {integrity: sha512-tVpsJW7DdjecAiFpbIB1e3qxIQsE6NoPc5/eTdrbbIC4h0LVsWhnoa3g+m2HclBIujHzsxZ4VJVA+GUuc2/LBw==}
     engines: {node: '>=12'}
@@ -4833,6 +4857,8 @@ snapshots:
   y18n@5.0.8: {}
 
   yallist@3.1.1: {}
+
+  yaml@2.9.1: {}
 
   yargs-parser@21.1.1: {}
 

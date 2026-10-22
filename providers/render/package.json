@@ -1,0 +1,21 @@
+{
+  "name": "@lazy-susan/render",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Reads the blueprint so the running app can say which keys this deployment has.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": { ".": "./dist/index.js" },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": { "yaml": "^2.7.0" },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4"
+  }
+}

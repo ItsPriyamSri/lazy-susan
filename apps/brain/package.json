@@ -20,7 +20,8 @@
     "@lazy-susan/sentry": "workspace:*",
     "@lazy-susan/elevenlabs": "workspace:*",
     "@lazy-susan/auth0": "workspace:*",
-    "@lazy-susan/atlas": "workspace:*"
+    "@lazy-susan/atlas": "workspace:*",
+    "@lazy-susan/render": "workspace:*"
   },
   "devDependencies": {
     "tsx": "^4.19.2",

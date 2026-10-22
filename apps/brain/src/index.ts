@@ -9,6 +9,7 @@ import { initSentry, withSpan } from "@lazy-susan/sentry";
 import { NoVoiceKey, briefScript, speak } from "@lazy-susan/elevenlabs";
 import { bearerFrom, isEnabled as authEnabled, verifyToken } from "@lazy-susan/auth0";
 import { answerId, mirror as atlasMirror } from "@lazy-susan/atlas";
+import { deploymentReport, readBlueprint } from "@lazy-susan/render";
 import { fillHtml, fillPdf } from "./fill.js";
 import { pagePng } from "./pages.js";
 import { CORPUS, OUT, essayFor, loadState, rulesWith, runOf } from "./state.js";
@@ -18,6 +19,7 @@ const state = loadState();
 const tracing = initSentry();
 const JOURNAL_FILE = join(OUT, ".journal.json");
 const atlas = atlasMirror();
+const blueprint = readBlueprint(join(import.meta.dirname, "../../../render.yaml"));
 let mirroredUpTo = 0;
 
 app.use(
@@ -99,7 +101,15 @@ if (atlas) {
   }
 }
 
-app.get("/api/health", (c) => c.json({ ok: true, documents: state.docs.length }));
+app.get("/api/health", (c) =>
+  c.json({
+    ok: true,
+    documents: state.docs.length,
+    // Which of the keys this deployment was given are present. Booleans only,
+    // because a health check is a public page.
+    deployment: deploymentReport(blueprint),
+  }),
+);
 
 app.get("/api/state", (c) =>
   c.json({

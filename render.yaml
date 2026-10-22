@@ -1,0 +1,29 @@
+# One service, one image. The keys are not in this file: they are set on the
+# service, so a copy of the repository never contains them.
+services:
+  - type: web
+    name: lazy-susan
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/health
+    plan: free
+    autoDeploy: false
+    envVars:
+      - key: PORT
+        value: 4757
+      # Optional. Each one switches a provider on; without it the app runs on
+      # the local path instead and says so in /api/health.
+      - key: MONGODB_URI
+        sync: false
+      - key: MONGODB_DB
+        value: lazy-susan
+      - key: BROWSERBASE_API_KEY
+        sync: false
+      - key: ELEVENLABS_API_KEY
+        sync: false
+      - key: AUTH0_DOMAIN
+        sync: false
+      - key: AUTH0_AUDIENCE
+        sync: false
+      - key: SENTRY_DSN
+        sync: false
