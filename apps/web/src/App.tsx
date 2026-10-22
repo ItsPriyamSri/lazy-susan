@@ -23,6 +23,18 @@ const fromHash = (): string => {
   return TABS.includes(h) ? h : TABS[0] ?? "bank-account";
 };
 
+/**
+ * Every call to the brain goes through here. When the API is protected the
+ * token is the one Auth0 handed to the page and the page put in sessionStorage;
+ * when it is not, this is an ordinary fetch.
+ */
+function api(path: string, init?: RequestInit): Promise<Response> {
+  const token = sessionStorage.getItem("lazy-susan-token");
+  const headers = new Headers(init?.headers);
+  if (token) headers.set("authorization", `Bearer ${token}`);
+  return fetch(path, { ...init, headers });
+}
+
 export default function App(): JSX.Element {
   const [formId, setFormId] = useState(fromHash);
   const [months, setMonths] = useState(3);
@@ -32,7 +44,7 @@ export default function App(): JSX.Element {
   const [filling, setFilling] = useState(false);
 
   useEffect(() => {
-    fetch("/api/health")
+    api("/api/health")
       .then((r) => (r.ok ? setLive(true) : setLive(false)))
       .catch(() => setLive(false));
   }, []);
@@ -257,7 +269,7 @@ export default function App(): JSX.Element {
                 onClick={async () => {
                   setFilling(true);
                   try {
-                    const res = await fetch(`/api/fill/${form.id}?months=${months}`, { method: "POST" });
+                    const res = await api(`/api/fill/${form.id}?months=${months}`, { method: "POST" });
                     const body = (await res.json()) as { url: string };
                     window.open(body.url, "_blank");
                   } finally {
@@ -300,7 +312,7 @@ function Speak({ formId }: { formId: string }): JSX.Element {
   async function readAloud() {
     setState("loading");
     try {
-      const res = await fetch(`/api/brief/${formId}`);
+      const res = await api(`/api/brief/${formId}`);
 
       // The server answers with audio when it has a voice, and with the script
       // when it does not. Either way the words are the app's own.

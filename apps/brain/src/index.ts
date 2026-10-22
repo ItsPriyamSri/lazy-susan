@@ -7,6 +7,7 @@ import { serveStatic } from "@hono/node-server/serve-static";
 import { KEY } from "@lazy-susan/core";
 import { initSentry, withSpan } from "@lazy-susan/sentry";
 import { NoVoiceKey, briefScript, speak } from "@lazy-susan/elevenlabs";
+import { bearerFrom, isEnabled as authEnabled, verifyToken } from "@lazy-susan/auth0";
 import { fillHtml, fillPdf } from "./fill.js";
 import { pagePng } from "./pages.js";
 import { CORPUS, OUT, essayFor, loadState, rulesWith, runOf } from "./state.js";
@@ -16,7 +17,27 @@ const state = loadState();
 const tracing = initSentry();
 const JOURNAL_FILE = join(OUT, ".journal.json");
 
-app.use("/api/*", cors({ origin: (o) => o ?? "*" }));
+app.use(
+  "/api/*",
+  cors({
+    origin: (o) => o ?? "*",
+    allowHeaders: ["content-type", "authorization"],
+  }),
+);
+
+/**
+ * The folder behind this API holds a passport scan. When a tenant is
+ * configured, nothing but the health check is answered without a token.
+ */
+app.use("/api/*", async (c, next) => {
+  if (!authEnabled() || c.req.path === "/api/health") return next();
+  try {
+    await verifyToken(bearerFrom(c.req.header("authorization")));
+  } catch (err) {
+    return c.json({ error: "sign in first", detail: (err as Error).message }, 401);
+  }
+  return next();
+});
 
 function persist(): void {
   mkdirSync(OUT, { recursive: true });

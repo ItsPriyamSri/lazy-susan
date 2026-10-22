@@ -20,6 +20,9 @@ importers:
       '@hono/node-server':
         specifier: ^1.13.7
         version: 1.19.17(hono@4.13.13)
+      '@lazy-susan/auth0':
+        specifier: workspace:*
+        version: link:../../providers/auth0
       '@lazy-susan/core':
         specifier: workspace:*
         version: link:../../packages/core
@@ -99,6 +102,22 @@ importers:
       tsx:
         specifier: ^4.19.2
         version: 4.23.15
+      typescript:
+        specifier: ^5.6.3
+        version: 5.9.3
+      vitest:
+        specifier: ^2.1.4
+        version: 2.1.9(@types/node@22.20.5)(terser@5.51.2)
+
+  providers/auth0:
+    dependencies:
+      jose:
+        specifier: ^6.2.13
+        version: 6.2.13
+    devDependencies:
+      '@types/node':
+        specifier: ^22.9.0
+        version: 22.20.5
       typescript:
         specifier: ^5.6.3
         version: 5.9.3
@@ -1738,6 +1757,9 @@ packages:
   jest-worker@27.5.1:
     resolution: {integrity: sha512-7vuh85V5cdDofPyxn58nrPjBktZo0u9x1g8WtjQol+jZDaE+fhN+cIvTj11GndBnMnyfrUOG1sZQxCdjKh+DKg==}
     engines: {node: '>= 10.13.0'}
+
+  jose@6.2.13:
+    resolution: {integrity: sha512-7TIg10ZE1x82YediN+lcrPNvGMKge9yFHQD+Qho/b8y2adfugU3AsvvHfxV0fzyFllT6l9xCjf4RWY9g/Z9PJQ==}
 
   js-tokens@4.0.0:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
@@ -3830,6 +3852,8 @@ snapshots:
       '@types/node': 22.20.5
       merge-stream: 2.0.0
       supports-color: 8.1.1
+
+  jose@6.2.13: {}
 
   js-tokens@4.0.0: {}
 
