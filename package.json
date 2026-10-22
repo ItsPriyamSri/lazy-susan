@@ -1,0 +1,35 @@
+{
+  "name": "lazy-susan",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Point it at the folder. It fills what the folder can prove, and refuses the rest.",
+  "license": "MIT",
+  "packageManager": "pnpm@10.33.0",
+  "scripts": {
+    "build": "pnpm -r --if-present build",
+    "test": "pnpm -r --if-present test",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "dev": "pnpm --filter @lazy-susan/web dev",
+    "start": "pnpm --filter @lazy-susan/brain start",
+    "corpus": "python3 packages/corpus/tools/make_docs.py",
+    "read": "pnpm --filter @lazy-susan/reader read",
+    "warm": "pnpm --filter @lazy-susan/gemma warm",
+    "export": "pnpm --filter @lazy-susan/brain export",
+    "night": "pnpm corpus && pnpm read && pnpm export",
+    "report": "pnpm --filter @lazy-susan/brain report",
+    "worker": "pnpm --filter @lazy-susan/temporal worker",
+    "night:durable": "pnpm --filter @lazy-susan/temporal night",
+    "verify:night": "pnpm --filter @lazy-susan/temporal verify"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "@types/node": "^22.9.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@swc/core",
+      "esbuild",
+      "protobufjs"
+    ]
+  }
+}
