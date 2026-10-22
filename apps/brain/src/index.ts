@@ -8,6 +8,7 @@ import { KEY } from "@lazy-susan/core";
 import { initSentry, withSpan } from "@lazy-susan/sentry";
 import { NoVoiceKey, briefScript, speak } from "@lazy-susan/elevenlabs";
 import { bearerFrom, isEnabled as authEnabled, verifyToken } from "@lazy-susan/auth0";
+import { answerId, mirror as atlasMirror } from "@lazy-susan/atlas";
 import { fillHtml, fillPdf } from "./fill.js";
 import { pagePng } from "./pages.js";
 import { CORPUS, OUT, essayFor, loadState, rulesWith, runOf } from "./state.js";
@@ -16,6 +17,8 @@ const app = new Hono();
 const state = loadState();
 const tracing = initSentry();
 const JOURNAL_FILE = join(OUT, ".journal.json");
+const atlas = atlasMirror();
+let mirroredUpTo = 0;
 
 app.use(
   "/api/*",
@@ -42,11 +45,58 @@ app.use("/api/*", async (c, next) => {
 function persist(): void {
   mkdirSync(OUT, { recursive: true });
   writeFileSync(JOURNAL_FILE, JSON.stringify(state.journal.entries, null, 2));
+
+  if (!atlas) return;
+  const pending = state.journal.entries.slice(mirroredUpTo);
+  mirroredUpTo = state.journal.entries.length;
+  void (async () => {
+    for (const entry of pending) {
+      if (entry.op.op === "commit") continue; // documents are read here, not carried
+      try {
+        await atlas.append({ id: answerId(entry.op), at: entry.at, op: entry.op });
+      } catch (err) {
+        // The disk copy is already written, so a failed mirror is a warning and
+        // a retry on the next write, not a lost answer.
+        mirroredUpTo = 0;
+        console.warn(`atlas: ${(err as Error).message}; will retry on the next write`);
+        return;
+      }
+    }
+  })();
 }
 
 function recalc(): void {
   state.index = state.journal.rebuild();
   persist();
+}
+
+/**
+ * Answers from another machine come back before the first request is served.
+ * Only answers: the documents were never sent anywhere, so this machine reads
+ * them from its own folder and the two together are the same ledger.
+ */
+if (atlas) {
+  try {
+    const rows = await atlas.answers();
+    const already = new Set(
+      state.journal.entries.filter((e) => e.op.op !== "commit").map((e) => answerId(e.op)),
+    );
+
+    let restored = 0;
+    for (const row of rows) {
+      if (already.has(row.id)) continue;
+      state.journal.append(row.op as never, new Date().toISOString());
+      restored += 1;
+    }
+
+    if (restored > 0) {
+      state.index = state.journal.rebuild();
+      console.log(`journal: ${restored} answer(s) restored from atlas`);
+    }
+    persist();
+  } catch (err) {
+    console.warn(`atlas unavailable at start: ${(err as Error).message}`);
+  }
 }
 
 app.get("/api/health", (c) => c.json({ ok: true, documents: state.docs.length }));

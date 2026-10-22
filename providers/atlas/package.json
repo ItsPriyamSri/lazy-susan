@@ -1,0 +1,22 @@
+{
+  "name": "@lazy-susan/atlas",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "An off-machine copy of the append-only journal, keyed by its own hash.",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": { ".": "./dist/index.js" },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": { "mongodb": "^7.7.0" },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "mongodb-memory-server": "^10.1.2",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4"
+  }
+}

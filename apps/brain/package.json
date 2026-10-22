@@ -19,7 +19,8 @@
     "pdf-lib": "^1.17.1",
     "@lazy-susan/sentry": "workspace:*",
     "@lazy-susan/elevenlabs": "workspace:*",
-    "@lazy-susan/auth0": "workspace:*"
+    "@lazy-susan/auth0": "workspace:*",
+    "@lazy-susan/atlas": "workspace:*"
   },
   "devDependencies": {
     "tsx": "^4.19.2",
