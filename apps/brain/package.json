@@ -1,0 +1,26 @@
+{
+  "name": "@lazy-susan/brain",
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "start": "tsx src/index.ts",
+    "dev": "tsx watch src/index.ts",
+    "export": "tsx src/export.ts",
+    "report": "tsx src/report.ts"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.13.7",
+    "@lazy-susan/core": "workspace:*",
+    "@lazy-susan/gemma": "workspace:*",
+    "@lazy-susan/reader": "workspace:*",
+    "hono": "^4.6.12",
+    "pdf-lib": "^1.17.1",
+    "@lazy-susan/sentry": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3"
+  }
+}
