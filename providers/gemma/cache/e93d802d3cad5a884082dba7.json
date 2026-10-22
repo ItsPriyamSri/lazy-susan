@@ -1,0 +1,7 @@
+{
+  "model": "gemma3:1b",
+  "prompt": "Write a short first-person answer. Plain English, no headings, no lists.\nAt most 200 words. Do not invent numbers, dates, employers or awards.\nFacts you may use:\n- B.Tech Computer Engineering\n- Testland Institute of Technology\n- 3\n- 8.6\n- Software Engineering Intern\n- Testland Systems Private Limited\n\nQuestion: In your own words: why are you a good fit for this scholarship?",
+  "response": "It’s honestly a bit surreal to be receiving this, but I think I’d be a good fit for this scholarship for a few reasons. I’ve spent the last three years immersed in Computer Engineering, building a solid foundation in algorithms and software design. My time at Testland Institute of Technology really honed my skills in software engineering, particularly focusing on rigorous testing methodologies.\n\nAs a Software Engineering Intern at Testland Systems Private Limited, I’ve been working on projects that demand precision and attention to detail – qualities I believe are crucial for success in this field.  I’m comfortable with complex problem-solving and have a strong desire to contribute to innovative solutions.  I’m a dedicated and quick learner, and I’m genuinely excited about the potential to grow within the industry.  It feels like this opportunity aligns perfectly with my aspirations.",
+  "ms": 112163,
+  "at": "2026-10-22T14:02:36.085Z"
+}

@@ -1,0 +1,7 @@
+{
+  "model": "gemma3:1b",
+  "prompt": "You assign form fields to facts.\nReply with ONLY a JSON array of exactly 14 strings, one per field, in order.\nExample for two fields: [\"person.full_name\",\"person.dob\"]\nIf no fact fits a field, use the string \"none\".\n\nFacts you may use:\nperson.full_name, person.dob, person.nationality, person.phone.mobile, person.email, address.current.line1, address.current.city, address.current.postcode, address.previous.line1, identity.id_number, identity.id_issued, identity.id_expiry, education.institution, education.programme, education.year, education.gpa, employment.employer, employment.role, employment.income_annual, finance.bank_name, finance.account_number, finance.statement_date, referee.1.name, referee.1.phone, skills.list, person.summary\n\nFields, in order:\n1. Full name\n2. Date of birth\n3. Nationality\n4. Identity document number\n5. Identity document expiry\n6. Residential address\n7. City\n8. Postcode\n9. Mobile number\n10. Email address\n11. Occupation\n12. Annual income (INR)\n13. Attach identity document\n14. Attach proof of address, issued within 3 months",
+  "response": "[\"full_name\", \"date_of_birth\", \"nationality\", \"identity_document_number\", \"identity_document_expiry\", \"residential_address\", \"city\", \"postcode\", \"mobile_number\", \"email_address\", \"occupation\", \"annual_income\", \"identity_document\", \"proof_of_address\", \"3_month_proof\"]",
+  "ms": 151572,
+  "at": "2026-10-22T14:01:44.998Z"
+}

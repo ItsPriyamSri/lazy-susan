@@ -1,0 +1,30 @@
+{
+  "name": "@lazy-susan/temporal",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "The night run, as a durable Temporal workflow: one activity per document.",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run",
+    "worker": "tsx src/worker.ts",
+    "night": "tsx src/client.ts",
+    "verify": "tsx src/verify.ts"
+  },
+  "dependencies": {
+    "@lazy-susan/core": "workspace:*",
+    "@lazy-susan/reader": "workspace:*",
+    "@temporalio/activity": "^1.24.0",
+    "@temporalio/client": "^1.24.0",
+    "@temporalio/worker": "^1.24.0",
+    "@temporalio/workflow": "^1.24.0",
+    "@lazy-susan/sentry": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.2",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4"
+  }
+}

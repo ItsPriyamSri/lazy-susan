@@ -1,0 +1,7 @@
+{
+  "model": "gemma3:1b",
+  "prompt": "Reply with the single word: ready",
+  "response": "ready\n",
+  "ms": 65947,
+  "at": "2026-10-22T14:03:42.032Z"
+}

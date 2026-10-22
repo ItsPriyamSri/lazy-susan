@@ -1,0 +1,7 @@
+{
+  "model": "gemma3:1b",
+  "prompt": "You assign form fields to facts.\nReply with ONLY a JSON array of exactly 12 strings, one per field, in order.\nExample for two fields: [\"person.full_name\",\"person.dob\"]\nIf no fact fits a field, use the string \"none\".\n\nFacts you may use:\nperson.full_name, person.dob, person.nationality, person.phone.mobile, person.email, address.current.line1, address.current.city, address.current.postcode, address.previous.line1, identity.id_number, identity.id_issued, identity.id_expiry, education.institution, education.programme, education.year, education.gpa, employment.employer, employment.role, employment.income_annual, finance.bank_name, finance.account_number, finance.statement_date, referee.1.name, referee.1.phone, skills.list, person.summary\n\nFields, in order:\n1. Full name\n2. Date of birth\n3. Programme\n4. Institution\n5. Year of study\n6. Cumulative grade point average\n7. Residential address\n8. Mobile number\n9. Previous address\n10. Referee name\n11. Attach identity document\n12. Attach most recent statement of grades",
+  "response": "[\"person.full_name\", \"person.dob\", \"person.nationality\", \"person.phone.mobile\", \"person.email\", \"address.current.line1\", \"address.current.city\", \"address.current.postcode\", \"address.previous.line1\", \"identity.id_number\", \"identity.id_issued\", \"identity.id_expiry\", \"education.institution\", \"education.programme\", \"education.year\", \"education.gpa\"]",
+  "ms": 114495,
+  "at": "2026-10-22T14:03:39.503Z"
+}
