@@ -12,6 +12,7 @@ import {
   runForm,
 } from "@lazy-susan/core";
 import type { EssayDraft, Fact, FormSpec, RuleSet, RunResult } from "@lazy-susan/core";
+import { loadProfile } from "./profile.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const CORPUS = resolve(HERE, "../../../packages/corpus");
@@ -109,6 +110,16 @@ export function loadState(): AppState {
     }
   })();
   if (summary?.at) readAt = summary.at;
+
+  // Your own details, read once. Attested, so they stay amber and stay weaker
+  // than anything a document proves.
+  const profile = loadProfile(undefined, readAt);
+  for (const fact of profile.facts) {
+    journal.append({ op: "attest", label: `profile ${fact.key}`, fact }, readAt);
+  }
+  if (profile.ignored.length > 0) {
+    console.warn(`profile: ignored ${profile.ignored.join(", ")} — not keys this project knows`);
+  }
 
   const formsDir = join(CORPUS, "forms");
   const forms = readdirSync(formsDir)

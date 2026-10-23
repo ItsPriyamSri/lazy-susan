@@ -26,6 +26,9 @@ importers:
       '@lazy-susan/auth0':
         specifier: workspace:*
         version: link:../../providers/auth0
+      '@lazy-susan/browserbase':
+        specifier: workspace:*
+        version: link:../../providers/browserbase
       '@lazy-susan/core':
         specifier: workspace:*
         version: link:../../packages/core
@@ -57,6 +60,9 @@ importers:
       typescript:
         specifier: ^5.6.3
         version: 5.9.3
+      vitest:
+        specifier: ^2.1.8
+        version: 2.1.9(@types/node@22.20.5)(terser@5.51.2)
 
   apps/web:
     dependencies:
@@ -155,6 +161,9 @@ importers:
       '@browserbasehq/sdk':
         specifier: ^2.22.0
         version: 2.22.0
+      '@lazy-susan/core':
+        specifier: workspace:*
+        version: link:../../packages/core
       playwright-core:
         specifier: ^1.64.1
         version: 1.64.1

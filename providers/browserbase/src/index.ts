@@ -9,7 +9,17 @@ import type { Browser, Frame, Locator, Page } from "playwright-core";
  * in a Browserbase session, which is what makes a portal that only exists on the
  * public internet reachable from a laptop. Without the key it runs in a local
  * Chrome, so the feature is testable and nothing is locked behind an account.
+ *
+ * `fillPortal` is the one-shot version: open, fill, screenshot, close. The
+ * session version lives in `session.ts` and stays open while a person finishes.
  */
+
+export { listControls, labelFor } from "./controls.js";
+export type { Control } from "./controls.js";
+export { keyFor, coerce } from "./map.js";
+export type { Coerced } from "./map.js";
+export { openPortal, portalMode } from "./session.js";
+export type { OpenOptions, Outcome, OutcomeStatus, PagePlan, PortalSession } from "./session.js";
 
 export interface PortalField {
   /** The name attribute of the control. */
@@ -27,8 +37,6 @@ export interface PortalJob {
   url: string;
   fields: PortalField[];
   files?: PortalFile[];
-  /** Trim the screenshot to this height in CSS pixels. */
-  maxHeight?: number;
 }
 
 export interface PortalResult {
@@ -50,10 +58,6 @@ const LOCAL_BROWSERS = [
   "/usr/bin/chromium-browser",
 ];
 
-export function portalMode(): "local" | "browserbase" {
-  return process.env.BROWSERBASE_API_KEY ? "browserbase" : "local";
-}
-
 function localExecutable(): string {
   const found = process.env.CHROME_PATH ?? LOCAL_BROWSERS.find((p) => existsSync(p));
   if (!found) {
@@ -69,10 +73,10 @@ async function open(): Promise<{
   sessionId?: string;
   liveView?: string;
 }> {
-  if (portalMode() === "browserbase") {
+  if (process.env.BROWSERBASE_API_KEY) {
     const { default: Browserbase } = await import("@browserbasehq/sdk");
     const bb = new Browserbase({ apiKey: process.env.BROWSERBASE_API_KEY });
-    const session = await bb.sessions.create({ timeout: 120 });
+    const session = await bb.sessions.create({ api_timeout: 120 });
     const browser = await chromium.connectOverCDP(session.connectUrl);
     const context = browser.contexts()[0] ?? (await browser.newContext());
     const page = context.pages()[0] ?? (await context.newPage());

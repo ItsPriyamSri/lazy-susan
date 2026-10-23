@@ -50,7 +50,18 @@ const HINTS: [RegExp, string][] = [
   [/summary|profile|about you|introduction/i, KEY.summary],
 ];
 
+/**
+ * Questions that contain a word the rules look for but are not that field.
+ * "How did you hear about this role?" is not a job title; a form that reads it
+ * as one would put a sentence into an occupation.
+ */
+const NOT_FIELDS: RegExp[] = [
+  /how did you hear|hear about (this|the) (role|job|position)|referral source/i,
+  /captcha|leave this (field )?blank|do not fill/i,
+];
+
 export function guessKey(label: string): string | null {
+  for (const re of NOT_FIELDS) if (re.test(label)) return null;
   for (const [re, key] of HINTS) if (re.test(label)) return key;
   return null;
 }

@@ -1,0 +1,10 @@
+{
+  "person.full_name": "PRIYAM SHARMA",
+  "person.email": "priyam@example.edu",
+  "person.phone.mobile": "+91 98200 11223",
+  "address.current.line1": "44 MG Road",
+  "address.current.city": "Pune",
+  "address.current.postcode": "411001",
+  "referee.1.name": "Dr A. Menon",
+  "referee.1.phone": "+91 90000 00000"
+}

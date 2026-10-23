@@ -10,6 +10,15 @@ import { NoVoiceKey, briefScript, speak } from "@lazy-susan/elevenlabs";
 import { bearerFrom, isEnabled as authEnabled, verifyToken } from "@lazy-susan/auth0";
 import { answerId, mirror as atlasMirror } from "@lazy-susan/atlas";
 import { deploymentReport, readBlueprint } from "@lazy-susan/render";
+import {
+  closeAllPortals,
+  closePortal,
+  planFromIndex,
+  planFromRun,
+  reapPortals,
+  refillPortal,
+  startPortal,
+} from "./portal.js";
 import { fillHtml, fillPdf } from "./fill.js";
 import { pagePng } from "./pages.js";
 import { CORPUS, OUT, essayFor, loadState, rulesWith, runOf } from "./state.js";
@@ -138,6 +147,14 @@ app.get("/api/form/:id", async (c) => {
 app.post("/api/answer", async (c) => {
   const body = await c.req.json<{ formId: string; key: string; value: string }>();
   if (!body.key || !body.value?.trim()) return c.json({ error: "key and value are required" }, 400);
+
+  // The page keeps answers in its own state and pushes them here when it needs
+  // the server to know. Sending the same one twice must not grow the journal.
+  const already = state.journal.entries.some(
+    (e) => e.op.op === "attest" && e.op.fact.key === body.key && e.op.fact.value === body.value.trim(),
+  );
+  if (already) return c.json({ ok: true, indexHash: state.index.hash(), already: true });
+
   state.journal.append(
     {
       op: "attest",
@@ -271,9 +288,114 @@ app.post("/api/fill/:id", async (c) => {
   return c.json({ kind: "html", file: `${formId}.filled.html`, url: `/files/${formId}.filled.html`, plan });
 });
 
+
+/**
+ * The standout: the page itself.
+ *
+ * Start a browser, type what the index can prove, ring what it cannot, and
+ * leave it open. Nothing here presses submit.
+ */
+app.post("/api/portal/start", async (c) => {
+  const body = await c.req.json<{ formId?: string; url?: string; months?: number }>();
+  const months = Number(body.months ?? 3);
+
+  if (body.url?.trim()) {
+    const plan = planFromIndex(state.index);
+    const portal = await withSpan("portal", "portal", () =>
+      startPortal({ url: body.url!.trim(), formId: "any", plan }),
+    );
+    return c.json({
+      id: portal.id,
+      formId: portal.formId,
+      mode: portal.session.mode,
+      liveView: portal.session.liveView,
+      url: portal.session.url(),
+      outcomes: portal.outcomes,
+      screenshot: await portal.session.screenshot(),
+      plan,
+      note: "No form spec for this page, so the rules that need one did not run.",
+    });
+  }
+
+  const spec = state.forms.find((f) => f.id === (body.formId ?? "enrolment"));
+  if (!spec) return c.notFound();
+
+  const html = join(CORPUS, "forms", `${spec.id}.html`);
+  if (!existsSync(html)) {
+    return c.json(
+      { error: `${spec.title} is a PDF, and a browser cannot type into a PDF. Use the enrol file, or give a URL.` },
+      400,
+    );
+  }
+
+  const run = runOf(state, spec.id, rulesWith({ addressProofMaxAgeMonths: months }));
+  const plan = planFromRun(run);
+
+  const essayField = spec.fields.find((f) => f.type === "textarea");
+  if (essayField) {
+    const view = await essayFor(state, spec.id, essayField.label, false);
+    if (!view.draft.refused && view.draft.text) plan.values[essayField.key] = view.draft.text;
+  }
+
+  const url = `${new URL(c.req.url).origin}/forms/${spec.id}.html`;
+  const portal = await withSpan(`portal ${spec.id}`, "portal", () =>
+    startPortal({ url, formId: spec.id, plan }),
+  );
+
+  return c.json({
+    id: portal.id,
+    formId: portal.formId,
+    mode: portal.session.mode,
+    liveView: portal.session.liveView,
+    url: portal.session.url(),
+    outcomes: portal.outcomes,
+    screenshot: await portal.session.screenshot(),
+    plan,
+  });
+});
+
+/** Types the answers you have given since into the same open page. */
+app.post("/api/portal/refill/:id", async (c) => {
+  const id = c.req.param("id");
+  const body = await c.req.json<{ formId?: string; months?: number }>().catch(() => ({}) as never);
+  const months = Number(body.months ?? 3);
+
+  const spec = body.formId ? state.forms.find((f) => f.id === body.formId) : undefined;
+  const plan = spec
+    ? planFromRun(runOf(state, spec.id, rulesWith({ addressProofMaxAgeMonths: months })))
+    : planFromIndex(state.index);
+
+  const portal = await refillPortal(id, plan);
+  if (!portal) return c.json({ error: "that browser is closed" }, 404);
+
+  return c.json({
+    id: portal.id,
+    mode: portal.session.mode,
+    liveView: portal.session.liveView,
+    outcomes: portal.outcomes,
+    screenshot: await portal.session.screenshot(),
+    plan,
+  });
+});
+
+app.post("/api/portal/close/:id", async (c) => {
+  const closed = await closePortal(c.req.param("id"));
+  return c.json({ closed });
+});
+
 app.use("/files/*", serveStatic({ root: OUT }));
+// The pages a browser can be pointed at. A PDF is not one of them.
+app.use("/forms/*", serveStatic({ root: CORPUS }));
 app.use("/*", serveStatic({ root: join(import.meta.dirname, "../../web/dist") }));
 app.get("*", serveStatic({ path: join(import.meta.dirname, "../../web/dist/index.html") }));
+
+// A browser left open on a machine nobody is watching is a bug.
+setInterval(() => void reapPortals(15), 5 * 60_000).unref();
+for (const signal of ["SIGINT", "SIGTERM"] as const) {
+  process.on(signal, () => {
+    void closeAllPortals().finally(() => process.exit(0));
+  });
+}
 
 const port = Number(process.env.PORT ?? 4757);
 serve({ fetch: app.fetch, port }, (info) => {

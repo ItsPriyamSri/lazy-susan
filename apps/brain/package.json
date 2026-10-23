@@ -8,7 +8,8 @@
     "start": "tsx src/index.ts",
     "dev": "tsx watch src/index.ts",
     "export": "tsx src/export.ts",
-    "report": "tsx src/report.ts"
+    "report": "tsx src/report.ts",
+    "test": "vitest run"
   },
   "dependencies": {
     "@hono/node-server": "^1.13.7",
@@ -21,10 +22,12 @@
     "@lazy-susan/elevenlabs": "workspace:*",
     "@lazy-susan/auth0": "workspace:*",
     "@lazy-susan/atlas": "workspace:*",
-    "@lazy-susan/render": "workspace:*"
+    "@lazy-susan/render": "workspace:*",
+    "@lazy-susan/browserbase": "workspace:*"
   },
   "devDependencies": {
     "tsx": "^4.19.2",
-    "typescript": "^5.6.3"
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.8"
   }
 }

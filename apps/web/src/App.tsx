@@ -285,6 +285,8 @@ export default function App(): JSX.Element {
           </div>
         </div>
 
+        <PortalPanel formId={form.id} months={months} live={live} answers={answers} />
+
         <p className="footnote">
           Every fact above points at a rectangle on a page, or at a line you typed. The paragraph is drafted by a
           small local model and then checked here, in this browser, one sentence at a time: a number that is not in
@@ -303,6 +305,186 @@ function Tally({ verdict, n, label }: { verdict: string; n: number; label: strin
       <div className="n">{n}</div>
       <div className="k">{label}</div>
     </div>
+  );
+}
+
+interface PortalOutcome {
+  handle: string;
+  label: string;
+  key: string | null;
+  status: "filled" | "open" | "unusable" | "not-ours";
+  value?: string;
+  reason?: string;
+}
+
+interface PortalView {
+  id: string;
+  mode: "local" | "browserbase";
+  liveView?: string;
+  url: string;
+  outcomes: PortalOutcome[];
+  screenshot: string;
+  note?: string;
+}
+
+/**
+ * The page, not the file.
+ *
+ * A browser opens on the form, the index types what it can prove, and the rest
+ * gets a ring instead of a guess. The person can take over in the window (or in
+ * the live view, when it is a hosted browser) and the machine never submits.
+ */
+function PortalPanel({
+  formId,
+  months,
+  live,
+  answers,
+}: {
+  formId: string;
+  months: number;
+  live: boolean;
+  answers: Answer[];
+}) {
+  const [run, setRun] = useState<PortalView | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [link, setLink] = useState("");
+  const [error, setError] = useState<string | null>(null);
+
+  /**
+   * The page keeps answers in its own state; the browser run reads the server's
+   * index. So answers go over before the browser is told anything.
+   */
+  async function pushAnswers() {
+    for (const a of answers) {
+      await api("/api/answer", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ formId: a.formId, key: a.key, value: a.value }),
+      });
+    }
+  }
+
+  async function start(url?: string) {
+    setBusy(true);
+    setError(null);
+    try {
+      await pushAnswers();
+      const res = await api("/api/portal/start", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(url ? { url, months } : { formId, months }),
+      });
+      const body = (await res.json()) as PortalView & { error?: string };
+      if (!res.ok) {
+        setError(body.error ?? "the browser did not start");
+        return;
+      }
+      setRun(body);
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function refill() {
+    if (!run) return;
+    setBusy(true);
+    try {
+      await pushAnswers();
+      const res = await api(`/api/portal/refill/${run.id}`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ formId, months }),
+      });
+      const body = (await res.json()) as PortalView;
+      if (res.ok) setRun({ ...run, ...body });
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function close() {
+    if (!run) return;
+    await api(`/api/portal/close/${run.id}`, { method: "POST" });
+    setRun(null);
+  }
+
+  const filled = run?.outcomes.filter((o) => o.status === "filled").length ?? 0;
+  const mine = run?.outcomes.filter((o) => o.status === "open" || o.status === "unusable").length ?? 0;
+  const theirs = run?.outcomes.filter((o) => o.status === "not-ours").length ?? 0;
+
+  return (
+    <>
+      <div className="section-head">
+        <h2>Fill it on the page</h2>
+        <p>
+          {live
+            ? "A browser opens on the form. It types what the folder can prove and rings the rest, and it never presses submit."
+            : "This page is a frozen run, so there is no browser to open. The local app does this."}
+        </p>
+      </div>
+
+      <div className="portal">
+        <div className="portal-actions">
+          <button className="btn" onClick={() => start()} disabled={!live || busy}>
+            {busy ? "Opening…" : "Fill this form in a browser"}
+          </button>
+          <input
+            value={link}
+            onChange={(e) => setLink(e.target.value)}
+            placeholder="or paste an application link"
+            disabled={!live || busy}
+          />
+          <button className="ghost" onClick={() => start(link.trim())} disabled={!live || busy || !link.trim()}>
+            Open that link
+          </button>
+        </div>
+
+        {error && <div className="empty">{error}</div>}
+
+        {run && (
+          <>
+            <div className="portal-frame">
+              {run.liveView ? (
+                <iframe src={run.liveView} title="the browser session" sandbox="allow-same-origin allow-scripts allow-forms" />
+              ) : (
+                <img src={`data:image/png;base64,${run.screenshot}`} alt="the page after filling" />
+              )}
+            </div>
+
+            <div className="portal-counts">
+              <span className="good">{filled} typed for you</span>
+              <span className="warn">{mine} left for you</span>
+              <span className="muted">{theirs} not ours</span>
+              <span className="muted">{run.mode === "browserbase" ? "hosted browser" : "local browser"}</span>
+            </div>
+
+            {run.note && <div className="hint">{run.note}</div>}
+
+            <div className="portal-rows">
+              {run.outcomes.map((o) => (
+                <div key={o.handle} className={`portal-row ${o.status}`}>
+                  <span className="portal-label">{o.label || o.handle}</span>
+                  <span className="portal-status">
+                    {o.status === "filled" ? o.value : o.status === "open" || o.status === "unusable" ? o.reason : "no field of ours"}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div className="portal-actions">
+              <button className="btn small" onClick={refill} disabled={busy}>
+                Type my answers into the page
+              </button>
+              <button className="ghost" onClick={close}>
+                Close the browser
+              </button>
+            </div>
+          </>
+        )}
+      </div>
+    </>
   );
 }
 

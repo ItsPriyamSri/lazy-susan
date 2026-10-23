@@ -1,10 +1,17 @@
 # Lazy Susan
 
-Point it at a folder of documents. It fills a form with what the folder can prove, and asks you
-for the rest. It does not guess, and it does not write a value it cannot point at.
+Point it at a folder of documents. It opens the form in a browser, types what the folder can
+prove, rings what it cannot, and asks you for the rest. It does not guess, and it does not write a
+value it cannot point at.
 
 Every filled field in the interface has a **Show me** button. It opens the page and draws a box
 around the words the value was read from. If there is no box, the field does not get filled.
+
+![The form, filled and ringed](screenshots/portal.png)
+
+Ten fields typed, two left for the person, nothing submitted. The green rings are values traced to
+a rectangle in a document or to a line typed into this app; the amber ones are the questions it
+will not answer for you.
 
 ![The morning list](screenshots/morning-list.png)
 
@@ -34,10 +41,39 @@ pnpm start      # http://localhost:4757
 says so.
 
 ```bash
-pnpm test       # 76 tests: resolver, essay check, journal, ledger, reader, tracing, portal,
-                #           token checks, voice, answers mirror, deployment blueprint
+pnpm test       # 96 tests: resolver, essay check, journal, ledger, reader, tracing, browser
+                #           session, field mapping, profile, token checks, voice, answers mirror,
+                #           deployment blueprint
 pnpm report     # every number quoted in the write-up, computed from these files
 ```
+
+## It fills the page
+
+The PDF is a receipt; the page is the point. `POST /api/portal/start` opens a browser on the form
+and works through the controls it finds:
+
+| On the page | What happens |
+|---|---|
+| the control's name is a key this project knows (`person.phone.mobile`) | used as is |
+| the name is a developer's spelling (`full_name`, `referee-phone`) | turned into words and matched against the label table |
+| only a visible label exists (`Date of birth`) | same label table |
+| no label and no name | left alone, and reported as not ours |
+
+A value is only typed if the control can hold it. `14 MAR 2003` becomes `2003-03-14` for a date
+input, `INR 480,000` becomes `480000` for a number, and a select only takes an option it actually
+offers — otherwise the field is ringed amber and the reason says what the list does offer.
+
+The browser stays open. Answer the amber cards, press **Type my answers into the page**, and the
+same session is refilled: the enrolment form went from 9 typed to 10 typed after one answer about a
+phone number. With `BROWSERBASE_API_KEY` the page runs in a hosted session and
+`sessions.debug(id).debuggerFullscreenUrl` is embedded as a live view you can take over. Without a
+key it runs in a local Chrome, headful, so the window on your screen is the demo. Neither path has
+a submit call in it.
+
+`apps/brain/out/profile.json` is the part of you that is not in a document: phone, email, referee,
+links. It is read once at startup as attested facts, so those fields fill on the first form too, and
+they still show as **your word**. `packages/corpus/profile.example.json` is the shape; the real
+file stays out of the repository.
 
 ## What runs where
 
@@ -49,7 +85,7 @@ pnpm report     # every number quoted in the write-up, computed from these files
 | `providers/gemma` | Node | the local model: form labels, and the paragraph |
 | `providers/temporal` | Node | the night as a durable workflow, one activity per document |
 | `providers/sentry` | Node | tracing, off unless `SENTRY_DSN` is set |
-| `providers/browserbase` | Node | types a resolved form into a page, locally or in a hosted browser |
+| `providers/browserbase` | Node | a kept-open browser session: reads controls, types verified values, rings the rest, screenshots |
 | `providers/auth0` | Node | verifies bearer tokens when a tenant is configured |
 | `providers/elevenlabs` | Node | reads the morning list aloud, when a key exists |
 | `providers/atlas` | Node | an off-machine copy of the answers you typed |
@@ -149,9 +185,9 @@ file. It exists so the reader can be scored instead of admired.
 ## What is not built
 
 - No OCR. A photograph of a page is reported as unreadable, not guessed at.
-- No portal automation against somebody else's site. A browser path exists for a page you point it
-  at, and it fills the controls it was given and leaves the rest alone; it does not log in to a
-  bank, and it does not press submit.
+- No login, no submit, no CAPTCHA. A browser opens on a page you point it at, types the controls it
+  can match to a proven fact, rings the rest, and stops. The button at the bottom of the form is
+  yours to press.
 - No cloud by default. Nothing leaves the machine unless a key is set: not the documents, not the
   model call, not the trace. Temporal runs as a local dev server on `localhost:7233`.
 - The model runs on this laptop, which is a slow laptop. A form mapping takes between 78 and 152
@@ -167,7 +203,7 @@ is claimed as live until I have run it against the real service and can say what
 |---|---|
 | **Gemma** (Ollama, `gemma3:1b`) | demonstrated: 39 form labels mapped, paragraph drafted, both measured above |
 | **Temporal** | demonstrated: `nightRun`, one activity per document, killed mid-run and resumed with zero duplicate rows |
-| **Browserbase** | wired and tested: `fillPortal` types a resolved form into a real page, reads each value back out of the DOM, attaches files, returns a screenshot. Five tests drive the actual enrolment form in a local Chrome and read each value back; a sixth checks the mode switch. With `BROWSERBASE_API_KEY` the same code path connects to a Browserbase session instead |
+| **Browserbase** | wired and tested: a session is opened on the form and kept open, each control is read from the DOM, verified values are typed, the rest are ringed, files are attached, and a screenshot comes back. Twenty-one tests run against a real Chrome — including a fixture whose fields have no `name` attribute at all — and the same code path connects to a Browserbase session when `BROWSERBASE_API_KEY` is set, with its live view embedded. Not claimed as live until the key arrives |
 | **Auth0** | wired and tested: when `AUTH0_DOMAIN` and `AUTH0_AUDIENCE` exist, every `/api` route except the health check verifies the bearer token against the tenant's JWKS, issuer, audience and expiry. Nine tests sign real tokens with a generated key pair and check the ways a token should fail |
 | **ElevenLabs** | wired and tested: the open fields become a short spoken script. With a key the audio comes from `ELEVENLABS_API_KEY`; without one the API returns the same script and the page reads it with its own voice, so the button is never dead |
 | **MongoDB Atlas** | wired and tested against a real `mongod`: the answers you typed are mirrored, keyed by a content hash, and replayed on a new machine. The documents are not mirrored, because they never left the folder. Set `MONGODB_URI` |

@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Summer internship — application</title>
+<style>
+  body { font: 15px/1.5 system-ui, sans-serif; margin: 0; background: #f7f5f0; color: #1c1a17; }
+  main { max-width: 720px; margin: 40px auto; background: #fff; padding: 32px 36px; border: 1px solid #e2ddd3; }
+  h1 { font-size: 22px; margin: 0 0 4px; }
+  p.sub { margin: 0 0 28px; color: #6b655c; font-size: 13px; }
+  .field { margin-bottom: 18px; }
+  label { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: #6b655c; margin-bottom: 5px; }
+  input[type=text], input[type=email], input[type=tel], input[type=date], textarea, select {
+    width: 100%; padding: 9px 10px; border: 1px solid #d8d2c6; border-radius: 4px; font: inherit; background: #fffdf9;
+  }
+  .row { display: flex; gap: 16px; }
+  .row > .field { flex: 1; }
+  .declare { display: flex; gap: 8px; align-items: center; margin: 22px 0; font-size: 13px; }
+  button { background: #1c1a17; color: #fff; border: 0; padding: 10px 16px; border-radius: 4px; font: inherit; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Summer internship — application</h1>
+  <p class="sub">This page exists to be awkward. No field has a <code>name</code> attribute.</p>
+
+  <form id="application">
+    <div class="field">
+      <label for="a1">Full name</label>
+      <input id="a1" type="text" placeholder="As printed on your ID">
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label for="a2">Date of birth</label>
+        <input id="a2" type="date">
+      </div>
+      <div class="field">
+        <label for="a3">Email address</label>
+        <input id="a3" type="email" placeholder="you@college.edu">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label for="a4">Mobile number</label>
+        <input id="a4" type="tel">
+      </div>
+      <div class="field">
+        <label for="a5">Institution</label>
+        <input id="a5" type="text">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label for="a6">Programme</label>
+        <select id="a6">
+          <option value="">Choose one</option>
+          <option>Computer Engineering</option>
+          <option>Information Technology</option>
+          <option>Electronics</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="a7">Year of study</label>
+        <input id="a7" type="text">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="a8">Residential address</label>
+      <input id="a8" type="text">
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label for="a9">Referee name</label>
+        <input id="a9" type="text">
+      </div>
+      <div class="field">
+        <label for="a10">Referee phone</label>
+        <input id="a10" type="tel">
+      </div>
+    </div>
+
+    <div class="field">
+      <label for="a11">Why are you a good fit?</label>
+      <textarea id="a11" rows="4"></textarea>
+    </div>
+
+    <div class="field">
+      <label for="a12">Attach your marksheet</label>
+      <input id="a12" type="file" accept=".pdf">
+    </div>
+
+    <div class="field">
+      <label for="a13">How did you hear about this role?</label>
+      <input id="a13" type="text">
+    </div>
+
+    <div class="declare">
+      <input id="a14" type="checkbox">
+      <label for="a14" style="margin:0;text-transform:none;letter-spacing:0;font-size:13px">I confirm the above is true</label>
+    </div>
+
+    <button type="submit" id="send">Submit application</button>
+  </form>
+</main>
+</body>
+</html>
