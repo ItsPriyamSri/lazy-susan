@@ -9,9 +9,15 @@ around the words the value was read from. If there is no box, the field does not
 
 ![The form, filled and ringed](screenshots/portal.png)
 
-Ten fields typed, two left for the person, nothing submitted. The green rings are values traced to
-a rectangle in a document or to a line typed into this app; the amber ones are the questions it
-will not answer for you.
+Eleven fields typed, one left for the person, nothing submitted. The green rings are values traced
+to a rectangle in a document or to a line typed into this app; the amber one is the question it will
+not answer for you.
+
+Three kinds of input: a PDF page, a Word document or a text file, and a paragraph you type about
+yourself. A PDF gives a rectangle on a page; a `.docx` or `.txt` gives a line number and the line. The
+paragraph is saved to the folder as `context.md`, attested rather than proved, and used only for
+questions like *why should we hire you*. Questions about the company are refused before a model is
+called: the company is not in the folder.
 
 ![The morning list](screenshots/morning-list.png)
 
@@ -32,7 +38,7 @@ interface, because it is not the same kind of thing as a value read off a page.
 
 ```bash
 pnpm install
-pnpm night      # build the fixture PDFs, read them, freeze the run for the browser
+pnpm night      # build the fixture documents and read them into extractions
 pnpm start      # http://localhost:4757
 ```
 
@@ -41,7 +47,7 @@ pnpm start      # http://localhost:4757
 says so.
 
 ```bash
-pnpm test       # 96 tests: resolver, essay check, journal, ledger, reader, tracing, browser
+pnpm test       # 112 tests: resolver, essay check, journal, ledger, reader (PDF, DOCX, TXT), tracing, browser
                 #           session, field mapping, profile, token checks, voice, answers mirror,
                 #           deployment blueprint
 pnpm report     # every number quoted in the write-up, computed from these files
@@ -64,8 +70,8 @@ input, `INR 480,000` becomes `480000` for a number, and a select only takes an o
 offers — otherwise the field is ringed amber and the reason says what the list does offer.
 
 The browser stays open. Answer the amber cards, press **Type my answers into the page**, and the
-same session is refilled: the enrolment form went from 9 typed to 10 typed after one answer about a
-phone number. With `BROWSERBASE_API_KEY` the page runs in a hosted session and
+same session is refilled: the enrolment form went from eleven typed to twelve after the year was
+settled. With `BROWSERBASE_API_KEY` the page runs in a hosted session and
 `sessions.debug(id).debuggerFullscreenUrl` is embedded as a live view you can take over. Without a
 key it runs in a local Chrome, headful, so the window on your screen is the demo. Neither path has
 a submit call in it.
@@ -80,8 +86,8 @@ file stays out of the repository.
 | Piece | Path | Job |
 |---|---|---|
 | `packages/core` | pure TypeScript | the five verdicts, the essay check, the ledger, the fill plan |
-| `packages/reader` | Node | `pdftotext -bbox-layout` → words → labels → facts with a rectangle |
-| `packages/corpus` | Python | makes twelve documents and three forms, plus a ground-truth file |
+| `packages/reader` | Node | `pdftotext -bbox-layout` → words → labels → facts with a rectangle, or a line for office files |
+| `packages/corpus` | Python | makes fourteen documents and four forms, plus a ground-truth file |
 | `providers/gemma` | Node | the local model: form labels, and the paragraph |
 | `providers/temporal` | Node | the night as a durable workflow, one activity per document |
 | `providers/sentry` | Node | tracing, off unless `SENTRY_DSN` is set |
@@ -91,11 +97,12 @@ file stays out of the repository.
 | `providers/atlas` | Node | an off-machine copy of the answers you typed |
 | `providers/render` | Node | reads the deployment blueprint so the health route can report it |
 | `apps/brain` | Hono | reads the folder, keeps the journal, fills PDF and HTML |
-| `apps/web` | React | the morning list, the page peek, the ledger |
+| `apps/web` | React | the live dashboard: folder, upload, about you, needs you, and the proof drawer |
 
-The browser does not ask the server what it should think. `apps/web` runs the same `core` code
-over a frozen copy of the facts, so moving the tolerance slider re-decides every field in front of
-you.
+The interface holds no copy of the facts. It asks the brain for a run and draws what comes back:
+every filled field with its file and page or line, every refusal with the server's own sentence. The
+tolerance control re-runs the form on the server, so the verdicts on screen are the verdicts in the
+ledger.
 
 ## How a value gets in
 
@@ -105,9 +112,12 @@ you.
 3. A small table of labels maps lines to facts: `Passport number` → `identity.id_number`, and so on.
 4. The value is searched for again in the page text. The rectangle is the union of the words it
    matched. **If the search fails, the fact is dropped and counted.** On this corpus that count is
-   zero out of forty-one.
+   zero out of fifty-five.
 5. A resolver decides between sources: better document kind first (a passport beats an award
    letter for a name), then more recent.
+6. A `.docx` or `.txt` has no rectangles. Its lines are laid out in reading order, and the pointer
+   is the 1-based line and the line itself. A resume is read in sections — skills, certifications,
+   CGPA — because a two-hundred-word bullet list is one fact, not ten that disagree.
 
 Nothing in steps 1–5 involves a model. That is deliberate: a value that is literally on the page
 does not need one, and a model that mistypes `PRIYAM` as `PRAYAM` produces a fact that cannot be
@@ -139,7 +149,7 @@ which is the only proof of "exact undo" that means anything.
 
 ## The night, as a workflow
 
-A night is twelve documents and one bad moment: someone closes the laptop. So the run is a Temporal
+A night is a folder of documents and one bad moment: someone closes the laptop. So the run is a Temporal
 workflow, `nightRun`, with one activity per document. The worker holds no state that matters. The
 server holds the position.
 
@@ -169,18 +179,20 @@ ok: every document read exactly once
 ```
 
 One row came from a second attempt. That is the document that was in flight when the process died.
-Nothing was read twice.
+Nothing was read twice. That run was measured on the twelve PDFs; the resume and the notes file were
+added later and go through the same activity.
 
 ## The folder
 
-All twelve documents are synthetic, generated by `packages/corpus/tools/make_docs.py`. Ten have
-real text layers; two are images of pages with no text at all, so the app has something it
-genuinely cannot read. The names, numbers and addresses are invented. The income figure and the
+All fourteen documents are synthetic, generated by `packages/corpus/tools/`. Twelve are readable —
+the ten PDFs with text layers, plus `resume.docx` and `notes.txt` — and two are images of pages with
+no text at all, so the app has something it genuinely cannot read. The names, numbers and addresses are invented. The income figure and the
 addresses disagree with each other on purpose, because that is what makes the conflict and expiry
 verdicts real rather than decorative.
 
 Ground truth is in `packages/corpus/ground-truth.json`: what a careful person would take from each
-file. It exists so the reader can be scored instead of admired.
+PDF. It exists so the reader can be scored instead of admired. The two office files are covered by
+tests instead: twelve facts from the resume, two from the notes, every one with a line number.
 
 ## What is not built
 
@@ -207,7 +219,7 @@ is claimed as live until I have run it against the real service and can say what
 | **Auth0** | wired and tested: when `AUTH0_DOMAIN` and `AUTH0_AUDIENCE` exist, every `/api` route except the health check verifies the bearer token against the tenant's JWKS, issuer, audience and expiry. Nine tests sign real tokens with a generated key pair and check the ways a token should fail |
 | **ElevenLabs** | wired and tested: the open fields become a short spoken script. With a key the audio comes from `ELEVENLABS_API_KEY`; without one the API returns the same script and the page reads it with its own voice, so the button is never dead |
 | **MongoDB Atlas** | wired and tested against a real `mongod`: the answers you typed are mirrored, keyed by a content hash, and replayed on a new machine. The documents are not mirrored, because they never left the folder. Set `MONGODB_URI` |
-| **Render** | `Dockerfile` + `render.yaml`, built and run here: the container serves the page, the three forms and the health route, and carries its own headless Chromium, so the browser fill works on a host with no key. Verified in the image: 12 controls, 9 typed, 3 ringed, screenshot returned. `/api/health` reports which optional keys the deployment has, as booleans |
+| **Render** | `Dockerfile` + `render.yaml`, built and run here: the container serves the page, the four forms and the health route, and carries its own headless Chromium, so the browser fill works on a host with no key. Verified in the image: the page's controls typed from the folder, the rest ringed, a screenshot returned. `/api/health` reports which optional keys the deployment has, as booleans |
 | **Sentry** | wired and tested: spans per document, per form run, per filling; no-op without `SENTRY_DSN`. A test points the SDK at a DSN on localhost and asserts the envelope carries the span name. No screenshot, because that needs an account I do not have |
 
 No other partner is claimed. Installing an SDK is not a demonstration, and neither is a key that

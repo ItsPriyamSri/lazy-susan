@@ -389,7 +389,7 @@ app.post("/api/fill/:id", async (c) => {
     return c.json({ kind: "pdf", file: `${formId}.filled.pdf`, url: `/files/${formId}.filled.pdf`, ...result, plan });
   }
 
-  const html = fillHtml(join(CORPUS, "forms", "enrolment.html"), plan);
+  const html = fillHtml(join(CORPUS, "forms", `${spec.id}.html`), plan);
   writeFileSync(join(OUT, `${formId}.filled.html`), html);
   return c.json({ kind: "html", file: `${formId}.filled.html`, url: `/files/${formId}.filled.html`, plan });
 });

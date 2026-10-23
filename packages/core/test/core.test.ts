@@ -50,7 +50,7 @@ function fixture() {
   index.addFact(fact(KEY.identityExpiry, "01 FEB 2032", "passport.png", 0.92));
 
   index.addFact(fact(KEY.addressLine1, "44 MG Road, Pune", "statement-jul.png", 0.9));
-  index.addFact(fact(KEY.addressLine1, "12 Nehru Road, Pune", "lease-2024.pdf", 0.86));
+  index.addFact(fact(KEY.addressLine1, "12 Nehru Road, Pune", "utility-may.png", 0.86));
 
   index.addFact(fact(KEY.educationInstitution, "Testland Institute", "marksheet.png", 0.91));
   index.addFact(fact(KEY.educationGpa, "8.6", "marksheet.png", 0.9));
@@ -101,10 +101,23 @@ describe("five verdicts", () => {
     expect(r.fields[0]!.value).toBe("Priyam Sharma");
   });
 
-  it("CONFLICT when two documents disagree", () => {
-    const r = runForm(form([field({ id: "addr", key: KEY.addressLine1 })]), index, DEFAULT_RULES, "2026-10-22T00:00:00Z");
+  it("CONFLICT when two fresh documents disagree", () => {
+    // Both proofs have to be inside the form's window to argue: an expired
+    // bill is not a second opinion.
+    const r = runForm(
+      form([field({ id: "addr", key: KEY.addressLine1 })]),
+      index,
+      { ...DEFAULT_RULES, addressProofMaxAgeMonths: 12 },
+      "2026-10-22T00:00:00Z",
+    );
     expect(r.fields[0]!.verdict).toBe("CONFLICT");
     expect(r.fields[0]!.candidates).toHaveLength(2);
+  });
+
+  it("ignores a proof that is too old when a fresh one agrees with itself", () => {
+    const r = runForm(form([field({ id: "addr", key: KEY.addressLine1 })]), index, DEFAULT_RULES, "2026-10-22T00:00:00Z");
+    expect(r.fields[0]!.verdict).toBe("FILLED");
+    expect(r.fields[0]!.value).toBe("44 MG Road, Pune");
   });
 
   it("EXPIRED when the only proof of address is too old", () => {
@@ -297,7 +310,6 @@ describe("fill plan", () => {
     const spec = form([
       field({ id: "name", key: KEY.personName }),
       field({ id: "phone", key: KEY.personPhone }),
-      field({ id: "addr", key: KEY.addressLine1, required: false }),
     ]);
     const run = runForm(spec, index, DEFAULT_RULES, "2026-10-22T00:00:00Z");
     const plan = planFill(run);

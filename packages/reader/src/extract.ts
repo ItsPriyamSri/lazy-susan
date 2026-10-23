@@ -296,9 +296,16 @@ export function extractDocument(file: string, raw: RawDoc, digest: string): Extr
 }
 
 function titleOf(raw: RawDoc, file: string): string {
+  // A text file has no letterhead to read a title off. Its name is the honest
+  // title; the second line of notes.txt is a phone number, not a heading.
+  if (raw.format === "text") {
+    return file
+      .replace(/\.[^.]+$/, "")
+      .replace(/[-_]+/g, " ")
+      .replace(/\b\w/g, (c) => c.toUpperCase());
+  }
+
   const lines = raw.pages[0]?.lines ?? [];
-  // The title is the largest-looking line under the letterhead: take the second
-  // non-empty line, falling back to the file name.
   const texts = lines.map((l) => l.text.trim()).filter(Boolean);
   const head = texts[0] ?? file;
   const title = texts[1] ?? head;

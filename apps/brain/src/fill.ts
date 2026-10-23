@@ -34,14 +34,18 @@ export async function fillPdf(src: string, plan: FillPlan, out: string): Promise
 export function fillHtml(src: string, plan: FillPlan): string {
   let html = readFileSync(src, "utf8");
 
+  // A field can be named or just have an id. The fixtures are ids only, and a
+  // real page usually has both, so try both instead of writing a blank copy.
   const setValue = (id: string, value: string): void => {
     const escaped = value.replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
-    const re = new RegExp(`(<input[^>]*\\bname="${id}"[^>]*?)(\\s*/?>)`);
+    const attr = `(?:name|id)="${id}"`;
+
+    const re = new RegExp(`(<input[^>]*\\b${attr}[^>]*?)(\\s*/?>)`);
     if (re.test(html)) {
       html = html.replace(re, `$1 value="${escaped}"$2`);
       return;
     }
-    const ta = new RegExp(`(<textarea[^>]*\\bname="${id}"[^>]*>)([\\s\\S]*?)(</textarea>)`);
+    const ta = new RegExp(`(<textarea[^>]*\\b${attr}[^>]*>)([\\s\\S]*?)(</textarea>)`);
     html = html.replace(ta, `$1${escaped}$3`);
   };
 

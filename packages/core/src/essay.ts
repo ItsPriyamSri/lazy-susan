@@ -191,6 +191,12 @@ export function attributeFacts(
         supports.add(f.key);
         continue;
       }
+      // A sentence that is a slice of a longer fact — a line lifted out of the
+      // paragraph about you — is still that fact's sentence.
+      if (flat.length >= 12 && v.includes(flat)) {
+        supports.add(f.key);
+        continue;
+      }
       // Commas and bullets are punctuation, not part of a word: "Python,
       // TypeScript" has to match a sentence that says "Python and TypeScript".
       const long = v.split(/[^\p{L}\p{N}.+#]+/u).filter((t) => t.length >= 5);

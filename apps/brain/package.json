@@ -7,7 +7,6 @@
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "start": "tsx src/index.ts",
     "dev": "tsx watch src/index.ts",
-    "export": "tsx src/export.ts",
     "report": "tsx src/report.ts",
     "test": "vitest run"
   },

@@ -180,7 +180,19 @@ function resolveValue(
 
   const all = index.documentFacts(key);
   const good = all.filter((f) => f.source.kind === "document" && f.source.confidence >= rules.minConfidence);
-  const distinct = distinctOf(ranked(index, key, good));
+
+  // A document too old for this form is not evidence any more, so it must not
+  // start a disagreement. Otherwise a utility bill from last spring argues with
+  // this month's statement about an address it cannot prove.
+  const asOf = parseDate(form.submissionDate) ?? today();
+  const freshEnough = (f: Fact): boolean => {
+    if (!RECENCY_KEYS.includes(key)) return true;
+    const doc = docFor(index, f.source);
+    const issued = doc?.issued ? parseDate(doc.issued) : null;
+    return !issued || monthsBetween(issued, asOf) <= rules.addressProofMaxAgeMonths;
+  };
+  const fresh = good.filter(freshEnough);
+  const distinct = distinctOf(ranked(index, key, fresh));
 
   if (distinct.length > 1) {
     const candidates: Candidate[] = distinct.map((d) => ({
@@ -259,6 +271,20 @@ function resolveValue(
       value: fact.value,
       reason: `From ${src.file}${src.page > 1 ? `, page ${src.page}` : ""}.`,
       source: src,
+    };
+  }
+
+  // Everything that could prove this is too old to count.
+  if (good.length > 0 && fresh.length === 0) {
+    const newest = ranked(index, key, good)[0]!;
+    const doc = docFor(index, newest.source);
+    const issued = doc?.issued ? parseDate(doc.issued) : null;
+    return {
+      field,
+      verdict: "EXPIRED",
+      value: newest.value,
+      reason: `The only proof of this is ${doc?.file ?? "a document"}, issued ${issued ? ago(issued, asOf) : "a while ago"}. This form accepts ${rules.addressProofMaxAgeMonths} months.`,
+      candidates: [{ value: newest.value, file: doc?.file ?? "", issued: doc?.issued }],
     };
   }
 
@@ -361,10 +387,31 @@ function issuedOf(index: Index, source: Source): string {
 }
 
 export function runForm(form: FormSpec, index: Index, rules: RuleSet, at: string): RunResult {
-  // A paragraph question is not a fact lookup; it is handled by `annotateEssay`.
-  const fields = form.fields
-    .filter((f) => f.type !== "textarea")
-    .map((f) => resolveField(f, index, rules, form));
+  // A paragraph question is not a fact lookup, so it is not resolved against
+  // the index. It is still a field: the interface has to show the question and
+  // say who answers it, and `annotateEssay` decides whether a draft can be
+  // traced. Leaving it out made the essay invisible on the form it belongs to.
+  const fields = form.fields.map((f) => {
+    if (f.type !== "textarea") return resolveField(f, index, rules, form);
+
+    // A paragraph is not looked up in the folder, but once you have written
+    // one it is on record like any other answer.
+    const attested = index.attestedFor(f.key);
+    return attested
+      ? {
+          field: f,
+          verdict: "FILLED" as const,
+          value: attested.value,
+          source: attested.source,
+          reason: "Your own words, on the record.",
+          weak: true,
+        }
+      : {
+          field: f,
+          verdict: "ASKED" as const,
+          reason: "A paragraph question. It is drafted and checked on its own, not looked up in the folder.",
+        };
+  });
   const counts: Counts = { FILLED: 0, ASKED: 0, CONFLICT: 0, EXPIRED: 0, UNREADABLE: 0 };
   for (const f of fields) counts[f.verdict as Verdict]++;
   return {
