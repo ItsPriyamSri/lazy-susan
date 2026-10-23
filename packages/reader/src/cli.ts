@@ -17,7 +17,7 @@ export function main(): number {
   let unreadable = 0;
 
   for (const e of extractions) {
-    writeFileSync(join(outDir, `${e.file.replace(/\.pdf$/i, "")}.json`), JSON.stringify(e, null, 2));
+    writeFileSync(join(outDir, `${e.file.replace(/\.[^.]+$/, "")}.json`), JSON.stringify(e, null, 2));
     facts += e.facts.length;
     unplaced += e.stats.unplaced.length;
     if (!e.readable) unreadable++;

@@ -5,6 +5,7 @@ import { cors } from "hono/cors";
 import { serve } from "@hono/node-server";
 import { serveStatic } from "@hono/node-server/serve-static";
 import { KEY } from "@lazy-susan/core";
+import { readDocument, readOne, readPdf } from "@lazy-susan/reader";
 import { initSentry, withSpan } from "@lazy-susan/sentry";
 import { NoVoiceKey, briefScript, speak } from "@lazy-susan/elevenlabs";
 import { bearerFrom, isEnabled as authEnabled, verifyToken } from "@lazy-susan/auth0";
@@ -13,6 +14,7 @@ import { deploymentReport, readBlueprint } from "@lazy-susan/render";
 import {
   closeAllPortals,
   closePortal,
+  labelsFor,
   planFromIndex,
   planFromRun,
   reapPortals,
@@ -22,9 +24,10 @@ import {
 import { fillHtml, fillPdf } from "./fill.js";
 import { pagePng } from "./pages.js";
 import { CORPUS, OUT, essayFor, loadState, rulesWith, runOf } from "./state.js";
+import { readContext, writeContext } from "./context.js";
 
 const app = new Hono();
-const state = loadState();
+let state = loadState();
 const tracing = initSentry();
 const JOURNAL_FILE = join(OUT, ".journal.json");
 const atlas = atlasMirror();
@@ -82,6 +85,37 @@ function recalc(): void {
 }
 
 /**
+ * Re-reads the folder after a document or the notes change.
+ *
+ * A reload must not throw away answers typed on this machine: the journal is
+ * memory first, disk second, and a fresh `loadState` knows nothing about either.
+ * So the non-commit entries are carried over, de-duplicated against what the
+ * new state already holds, and the index is rebuilt from the union.
+ */
+function reloadState(): void {
+  const carried = state.journal.entries.filter((e) => e.op.op !== "commit");
+  state = loadState();
+
+  for (const entry of carried) {
+    const op = entry.op;
+    if (op.op !== "attest" && op.op !== "resolve") continue;
+    const same = state.journal.entries.some(
+      (e) =>
+        e.op.op === op.op &&
+        (e.op.op === "attest" || e.op.op === "resolve") &&
+        e.op.fact.key === op.fact.key &&
+        e.op.fact.value === op.fact.value,
+    );
+    if (same) continue;
+    state.journal.append(op, entry.at);
+  }
+
+  state.index = state.journal.rebuild();
+  mirroredUpTo = 0;
+  persist();
+}
+
+/**
  * Answers from another machine come back before the first request is served.
  * Only answers: the documents were never sent anywhere, so this machine reads
  * them from its own folder and the two together are the same ledger.
@@ -132,9 +166,64 @@ app.get("/api/state", (c) =>
       head: state.journal.head(),
       verified: state.journal.verify(),
     },
+    context: state.context,
     keys: KEY,
   }),
 );
+
+/** The paragraph about you, kept in the folder as one small file. */
+app.get("/api/context", (c) => c.json(state.context));
+
+app.post("/api/context", async (c) => {
+  const body = await c.req.json<{ text?: string }>().catch(() => ({}) as never);
+  const text = typeof body.text === "string" ? body.text : "";
+  if (text.length > 20_000) return c.json({ error: "that is longer than a paragraph; keep it under 20,000 characters" }, 400);
+  const written = writeContext(text);
+  reloadState();
+  return c.json({ context: { text: written.text, savedAt: written.savedAt }, indexHash: state.index.hash() });
+});
+
+/**
+ * A document arrives from the page, not from the generator.
+ *
+ * It is written into the same folder the night run reads, read immediately, and
+ * its extraction is written where the next start will find it. The name is
+ * stripped to a bare file name: this endpoint takes one file, not a path.
+ */
+app.post("/api/documents", async (c) => {
+  const form = await c.req.parseBody();
+  const file = form.file;
+  if (!(file instanceof File)) return c.json({ error: "send one file in the `file` field" }, 400);
+
+  const name = file.name.split(/[\\/]/).pop()?.replace(/[^\w.\- ()]/g, "").trim() ?? "";
+  if (!name || !/\.(pdf|docx|txt|md)$/i.test(name)) {
+    return c.json({ error: "only .pdf, .docx, .txt and .md are read" }, 400);
+  }
+
+  const docsDir = join(CORPUS, "docs");
+  mkdirSync(docsDir, { recursive: true });
+  const path = join(docsDir, name);
+  writeFileSync(path, new Uint8Array(await file.arrayBuffer()));
+
+  const extraction = readOne(docsDir, name);
+  const extractionsDir = join(CORPUS, "extractions");
+  mkdirSync(extractionsDir, { recursive: true });
+  writeFileSync(
+    join(extractionsDir, `${name.replace(/\.[^.]+$/, "")}.json`),
+    JSON.stringify(extraction, null, 2),
+  );
+
+  reloadState();
+
+  return c.json({
+    file: name,
+    kind: extraction.kind,
+    readable: extraction.readable,
+    facts: extraction.facts.length,
+    unplaced: extraction.stats.unplaced.length,
+    extraction,
+  });
+});
 
 app.get("/api/form/:id", async (c) => {
   const formId = c.req.param("id");
@@ -221,6 +310,24 @@ app.get("/api/doc/:file", (c) => {
   return c.body(readFileSync(path), 200, { "content-type": "application/pdf" });
 });
 
+/**
+ * The text of a file that has no pages, so the interface can show the line a
+ * value came from with the lines around it.
+ */
+app.get("/api/document/:file", (c) => {
+  const file = c.req.param("file").replace(/[^\w.-]/g, "");
+  const path = join(CORPUS, "docs", file);
+  if (!existsSync(path)) return c.notFound();
+  if (/\.pdf$/i.test(file)) return c.json({ file, format: "pdf" as const, lines: [] as string[] });
+
+  const raw = readDocument(path, readPdf);
+  return c.json({
+    file,
+    format: raw.format,
+    lines: raw.pages.flatMap((p) => p.lines.map((l) => l.text)),
+  });
+});
+
 app.post("/api/essay", async (c) => {
   const body = await c.req.json<{ formId: string; text?: string; question?: string; allowModel?: boolean }>();
   const spec = state.forms.find((f) => f.id === body.formId);
@@ -269,11 +376,10 @@ app.post("/api/fill/:id", async (c) => {
   const plan = await withSpan(`write ${formId}`, "fill", async () => planFill(run));
   mkdirSync(OUT, { recursive: true });
 
-  const essayField = spec.fields.find((f) => f.type === "textarea");
-  if (essayField) {
-    const view = await essayFor(state, formId, essayField.label, false);
+  for (const field of spec.fields.filter((f) => f.type === "textarea")) {
+    const view = await essayFor(state, formId, field.label, false);
     if (view.draft.refused || !view.draft.text) {
-      plan.blocked.push(`The paragraph: ${view.draft.refused ?? "nothing written yet"}`);
+      plan.blocked.push(`${field.label}: ${view.draft.refused ?? "nothing written yet"}`);
     }
   }
 
@@ -330,11 +436,11 @@ app.post("/api/portal/start", async (c) => {
 
   const run = runOf(state, spec.id, rulesWith({ addressProofMaxAgeMonths: months }));
   const plan = planFromRun(run);
+  plan.byLabel = labelsFor(spec);
 
-  const essayField = spec.fields.find((f) => f.type === "textarea");
-  if (essayField) {
-    const view = await essayFor(state, spec.id, essayField.label, false);
-    if (!view.draft.refused && view.draft.text) plan.values[essayField.key] = view.draft.text;
+  for (const field of spec.fields.filter((f) => f.type === "textarea")) {
+    const view = await essayFor(state, spec.id, field.label, false);
+    if (!view.draft.refused && view.draft.text) plan.values[field.key] = view.draft.text;
   }
 
   // The browser runs next to the server, so it talks to it over loopback. The
@@ -367,6 +473,14 @@ app.post("/api/portal/refill/:id", async (c) => {
   const plan = spec
     ? planFromRun(runOf(state, spec.id, rulesWith({ addressProofMaxAgeMonths: months })))
     : planFromIndex(state.index);
+
+  if (spec) {
+    plan.byLabel = labelsFor(spec);
+    for (const field of spec.fields.filter((f) => f.type === "textarea")) {
+      const view = await essayFor(state, spec.id, field.label, false);
+      if (!view.draft.refused && view.draft.text) plan.values[field.key] = view.draft.text;
+    }
+  }
 
   const portal = await refillPortal(id, plan);
   if (!portal) return c.json({ error: "that browser is closed" }, 404);

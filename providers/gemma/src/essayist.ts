@@ -18,12 +18,16 @@ export async function draftEssay(
   facts: { key: string; value: string }[],
   maxWords: number,
   allowModel = true,
+  context = "",
 ): Promise<Draft> {
   const prompt = [
     "Write a short first-person answer. Plain English, no headings, no lists.",
     `At most ${maxWords} words. Do not invent numbers, dates, employers or awards.`,
     "Facts you may use:",
-    ...facts.map((f) => `- ${f.value}`),
+    ...facts.filter((f) => f.key !== "person.context").map((f) => `- ${f.value}`),
+    ...(context.trim()
+      ? ["", "The applicant, in their own words. Use this for motivation and voice, not as a source of new facts:", context.trim()]
+      : []),
     "",
     `Question: ${question}`,
   ].join("\n");

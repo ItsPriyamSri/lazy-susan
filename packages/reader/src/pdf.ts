@@ -29,8 +29,13 @@ export interface Page {
 export interface RawDoc {
   file: string;
   pages: Page[];
-  /** True when the PDF has no text layer at all, i.e. it is a picture of a page. */
+  /** True when the file has no text at all, i.e. it is a picture of a page. */
   imageOnly: boolean;
+  /**
+   * `pdf` has real page geometry. `text` is a .txt or a .docx laid out into
+   * lines: the line number is the pointer, not the rectangle.
+   */
+  format: "pdf" | "text";
 }
 
 const ENTITY: Record<string, string> = {
@@ -99,6 +104,7 @@ export function readPdf(path: string): RawDoc {
     file: path,
     pages,
     imageOnly: pages.every((p) => p.lines.length === 0),
+    format: "pdf",
   };
 }
 

@@ -11,7 +11,7 @@
     "typecheck": "pnpm -r --if-present typecheck",
     "dev": "pnpm --filter @lazy-susan/web dev",
     "start": "pnpm --filter @lazy-susan/brain start",
-    "corpus": "python3 packages/corpus/tools/make_docs.py",
+    "corpus": "python3 packages/corpus/tools/make_docs.py && python3 packages/corpus/tools/make_office_docs.py",
     "read": "pnpm --filter @lazy-susan/reader read",
     "warm": "pnpm --filter @lazy-susan/gemma warm",
     "export": "pnpm --filter @lazy-susan/brain export",

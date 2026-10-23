@@ -1,7 +1,7 @@
 import { join } from "node:path";
 import { existsSync } from "node:fs";
-import type { Index, RunResult } from "@lazy-susan/core";
-import { openPortal } from "@lazy-susan/browserbase";
+import type { FormSpec, Index, RunResult } from "@lazy-susan/core";
+import { normaliseLabel, openPortal } from "@lazy-susan/browserbase";
 import type { Outcome, PagePlan, PortalSession } from "@lazy-susan/browserbase";
 import { CORPUS } from "./state.js";
 
@@ -81,6 +81,13 @@ export function planFromIndex(index: Index): PagePlan {
   }
 
   return plan;
+}
+
+/** The form's own wording → its key, for controls no rule could name. */
+export function labelsFor(spec: FormSpec): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const field of spec.fields) out[normaliseLabel(field.label)] = field.key;
+  return out;
 }
 
 export async function startPortal(input: {

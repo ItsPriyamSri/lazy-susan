@@ -8,11 +8,13 @@ import {
   annotateEssay,
   attributeFacts,
   composeDraft,
+  needsYou,
   planFill,
   runForm,
 } from "@lazy-susan/core";
 import type { EssayDraft, Fact, FormSpec, RuleSet, RunResult } from "@lazy-susan/core";
 import { loadProfile } from "./profile.js";
+import { readContext } from "./context.js";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 export const CORPUS = resolve(HERE, "../../../packages/corpus");
@@ -38,6 +40,8 @@ export interface AppState {
   /** When the run that produced the extractions happened. */
   readAt: string;
   counters: { documents: number; readable: number; facts: number; proposed: number; unplaced: number };
+  /** The paragraph the person wrote about themselves, if any. */
+  context: { text: string; savedAt?: string };
 }
 
 function readJson<T>(path: string): T {
@@ -121,6 +125,24 @@ export function loadState(): AppState {
     console.warn(`profile: ignored ${profile.ignored.join(", ")} — not keys this project knows`);
   }
 
+  // The paragraph about you. One attested fact, because it is your word, and
+  // because the essay checker needs something to trace a sentence to.
+  const context = readContext();
+  if (context.text.trim()) {
+    journal.append(
+      {
+        op: "attest",
+        label: "about you",
+        fact: {
+          key: "person.context",
+          value: context.text.trim(),
+          source: { kind: "attested", at: context.savedAt ?? readAt, formId: "context", by: "human" },
+        },
+      },
+      readAt,
+    );
+  }
+
   const formsDir = join(CORPUS, "forms");
   const forms = readdirSync(formsDir)
     .filter((f) => f.endsWith(".json"))
@@ -133,6 +155,7 @@ export function loadState(): AppState {
     docs,
     forms,
     readAt,
+    context: { text: context.text, savedAt: context.savedAt },
     counters: {
       documents: docs.length,
       readable: docs.filter((d) => d.readable).length,
@@ -170,6 +193,25 @@ export async function essayFor(
   const spec = state.forms.find((f) => f.id === formId);
   const maxWords = spec?.fields.find((f) => f.type === "textarea")?.maxWords ?? 200;
 
+  // Some questions are not in the folder and never will be: they are about the
+  // company. Refuse before the model gets a chance to pad them.
+  if (needsYou(question)) {
+    return {
+      draft: {
+        question,
+        accepted: [],
+        struck: [],
+        text: "",
+        wordCount: 0,
+        refusedKind: "no-facts",
+        refused:
+          "This question is about the company, and nothing in your folder or notes is about the company. It is yours to answer.",
+      },
+      source: "templates",
+      question,
+    };
+  }
+
   const facts = state.index.facts
     .filter((f) => f.source.kind === "attested" || f.source.confidence >= 0.6)
     .map((f) => ({ key: f.key, value: f.value }));
@@ -180,7 +222,7 @@ export async function essayFor(
 
   try {
     const { draftEssay } = await import("@lazy-susan/gemma");
-    const draft = await draftEssay(question, facts, maxWords, allowModel);
+    const draft = await draftEssay(question, facts, maxWords, allowModel, state.context.text);
     text = draft.text;
     source = "model";
     ms = draft.ms;
@@ -190,6 +232,20 @@ export async function essayFor(
   }
 
   if (!text) text = composeDraft(facts);
+
+  // With no model, the person's own paragraph is still the best sentence in
+  // the box. It is quoted, not paraphrased: their words, on the record.
+  if (source === "templates" && state.context.text.trim()) {
+    const lead = state.context.text
+      .trim()
+      .split(/(?<=[.!?])\s+/)
+      .slice(0, 2)
+      .join(" ")
+      .split(/\s+/)
+      .slice(0, 60)
+      .join(" ");
+    text = `${lead} ${text}`.trim();
+  }
   const sentences = attributeFacts(text, facts);
   return { draft: annotateEssay(question, sentences, state.index, maxWords), source, ms, question };
 }

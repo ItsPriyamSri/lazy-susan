@@ -12,6 +12,7 @@ export type DocumentKind =
   | "income_proof"
   | "education"
   | "reference"
+  | "resume"
   | "other";
 
 export type Verdict = "FILLED" | "ASKED" | "CONFLICT" | "EXPIRED" | "UNREADABLE";
@@ -45,6 +46,13 @@ export type Source =
       page: number;
       bbox: BBox;
       confidence: number;
+      /**
+       * For a file with no page geometry (text, docx): the 1-based line the
+       * value was read from, and the line itself. A rectangle is the strongest
+       * pointer; a line is the same idea for a file that has no pages.
+       */
+      line?: number;
+      excerpt?: string;
     }
   | {
       kind: "attested";
@@ -165,4 +173,10 @@ export interface EssayDraft {
   text: string;
   wordCount: number;
   refused?: string;
+  /**
+   * `no-facts` means nothing in the folder or the notes relates to this
+   * question, so it is the person's to answer. `thin` means something relates,
+   * but not enough to write a paragraph without padding.
+   */
+  refusedKind?: "no-facts" | "thin";
 }

@@ -6,6 +6,10 @@ export interface Located {
   bbox: BBox;
   /** The words that were matched, for the "show me" panel. */
   words: string;
+  /** Zero-based index of the line the first matched word sits on. */
+  line: number;
+  /** The whole line, for a file where a line is the only pointer there is. */
+  excerpt: string;
 }
 
 /** Lowercase, letters and digits only, so punctuation never defeats a match. */
@@ -29,13 +33,13 @@ export function locate(pages: Page[], value: string): Located | null {
   if (!needle.length) return null;
 
   for (const page of pages) {
-    const flat: { token: string; word: Word }[] = [];
-    for (const line of page.lines) {
+    const flat: { token: string; word: Word; line: number }[] = [];
+    page.lines.forEach((line, lineIndex) => {
       for (const word of line.words) {
         const token = tokenise(word.text)[0];
-        if (token) flat.push({ token, word });
+        if (token) flat.push({ token, word, line: lineIndex });
       }
-    }
+    });
 
     for (let i = 0; i + needle.length <= flat.length; i++) {
       let ok = true;
@@ -62,6 +66,8 @@ export function locate(pages: Page[], value: string): Located | null {
           h: clamp((y1 - y0) / page.height),
         },
         words: matched.map((w) => w.text).join(" "),
+        line: flat[i]!.line,
+        excerpt: page.lines[flat[i]!.line]?.text ?? "",
       };
     }
   }

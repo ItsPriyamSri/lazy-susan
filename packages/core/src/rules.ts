@@ -33,6 +33,7 @@ const ABSENCE: Record<string, string> = {
   [KEY.refereePhone]: "No document in your folder contains a referee's number.",
   [KEY.skills]: "No document in your folder lists skills.",
   [KEY.summary]: "No document in your folder contains a summary.",
+  [KEY.certifications]: "No document in your folder lists a certification.",
   [KEY.financeBank]: "No statement in your folder names a bank.",
   [KEY.financeAccount]: "No statement in your folder shows an account number.",
 };
@@ -43,6 +44,7 @@ const NOUN: Record<string, string> = {
   "income_proof": "proof of income",
   "education": "education document",
   "reference": "reference letter",
+  "resume": "resume",
   "other": "document",
 };
 

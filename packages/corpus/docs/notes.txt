@@ -1,0 +1,6 @@
+Referee: Dr A. Menon
+Referee phone: +91 90000 00000
+Referee email: a.menon@example.edu
+
+These notes exist so the folder has a plain-text file, not just PDFs.
+Nothing here is real.

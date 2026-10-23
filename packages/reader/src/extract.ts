@@ -33,21 +33,24 @@ const LABELS: [RegExp, string][] = [
   [/^(full name|student name|account holder|customer name|candidate name|tenant|awarded to)$/i, KEY.personName],
   [/^(date of birth|dob)$/i, KEY.personDob],
   [/^nationality$/i, KEY.personNationality],
-  [/^(passport number|identity document number)$/i, KEY.identityNumber],
+  [/^(passport number|identity document number|aadhaar|aadhar|pan)$/i, KEY.identityNumber],
   [/^(date of expiry|expiry date)$/i, KEY.identityExpiry],
-  [/^(programme|course)$/i, KEY.educationProgramme],
-  [/^year of study$/i, KEY.educationYear],
-  [/^(cumulative grade point average|cgpa|gpa)$/i, KEY.educationGpa],
-  [/^institution$/i, KEY.educationInstitution],
+  [/^(programme|program|course|degree)$/i, KEY.educationProgramme],
+  [/^(year of study|current year|year)$/i, KEY.educationYear],
+  [/^(cumulative grade point average|cgpa|gpa|current cgpa)$/i, KEY.educationGpa],
+  [/^(institution|college|university|school)$/i, KEY.educationInstitution],
   [/^role$/i, KEY.employmentRole],
   [/^employer$/i, KEY.employmentEmployer],
   [/^(annual compensation|annual salary|annual income)$/i, KEY.employmentIncome],
   [/^account number$/i, KEY.financeAccount],
   [/^referee$/i, KEY.refereeName],
+  [/^(referee phone|referee mobile|referee contact|referee number|referee's phone)$/i, KEY.refereePhone],
+  [/^(email|e-mail|email address|email id)$/i, KEY.personEmail],
+  [/^(phone|mobile|mobile number|phone number|contact number|contact)$/i, KEY.personPhone],
 ];
 
 const ISSUED_LABELS = /^(date of issue|bill date|date of agreement|date of award|issued on)$/i;
-const ADDRESS_LABELS = /^(address|supply address|premises|residential address)$/i;
+const ADDRESS_LABELS = /^(address|supply address|premises|residential address|current address|permanent address)$/i;
 
 const KIND_RULES: [RegExp, DocumentKind][] = [
   [/passport/i, "identity"],
@@ -58,14 +61,16 @@ const KIND_RULES: [RegExp, DocumentKind][] = [
   [/offer of internship|annual compensation/i, "income_proof"],
   [/tenancy agreement/i, "other"],
   [/merit scholarship/i, "other"],
+  [/curriculum vitae|^\s*resume\b|\bresume\b/i, "resume"],
 ];
 
 const FILENAME_KINDS: [RegExp, DocumentKind][] = [
-  [/passport|national-id|identity/i, "identity"],
-  [/marksheet|grade|transcript|certificate/i, "education"],
+  [/passport|national-id|identity|aadhaar|aadhar/i, "identity"],
+  [/marksheet|grade|transcript|certificate|result/i, "education"],
   [/statement|utility|bill|lease|tenancy/i, "address_proof"],
   [/offer|salary|payslip|income/i, "income_proof"],
   [/reference|referee|recommend/i, "reference"],
+  [/resume|curriculum|\bcv\b/i, "resume"],
 ];
 
 export function classify(text: string, filename: string): DocumentKind {
@@ -73,6 +78,14 @@ export function classify(text: string, filename: string): DocumentKind {
   for (const [re, kind] of FILENAME_KINDS) if (re.test(filename)) return kind;
   return "other";
 }
+
+/** Section headings a resume uses. The lines under one belong to it. */
+const HEADINGS =
+  /^(skills?|technical skills|core competencies|certifications?|licenses?|certifications? (?:and|&) (?:licenses?|awards?)|awards?|achievements?|education|experience|work experience|projects?|summary|profile|about me|contact|personal details|interests?)$/i;
+
+const EMAIL = /\b[\w.+-]+@[\w-]+(?:\.[\w-]+)+\b/;
+/** A phone number, but only in a document that is a person's own history. */
+const PHONE = /(?:\+\d{1,3}[\s-]?)?\d{5}[\s-]?\d{5}\b|\+\d{1,3}[\s-]?\d{4,5}[\s-]?\d{5}\b/;
 
 export function extractDocument(file: string, raw: RawDoc, digest: string): Extraction {
   const title = titleOf(raw, file);
@@ -100,9 +113,9 @@ export function extractDocument(file: string, raw: RawDoc, digest: string): Extr
   let labelled = 0;
   let lines = 0;
 
-  const push = (key: string, value: string): void => {
+  const push = (key: string, value: string, locateAs = value): void => {
     if (!value) return;
-    const hit = locate(raw.pages, value);
+    const hit = locate(raw.pages, locateAs);
     if (!hit) {
       unplaced.push({ key, value });
       return;
@@ -110,14 +123,79 @@ export function extractDocument(file: string, raw: RawDoc, digest: string): Extr
     facts.push({
       key,
       value,
-      source: { kind: "document", file, page: hit.page, bbox: hit.bbox, confidence: 0.98 },
+      source: {
+        kind: "document",
+        file,
+        page: hit.page,
+        bbox: hit.bbox,
+        confidence: 0.98,
+        ...(raw.format === "text" ? { line: hit.line + 1, excerpt: hit.excerpt } : {}),
+      },
     });
     labelled++;
   };
 
+  /**
+   * A value assembled from several lines (a skills list) is not one string on
+   * the page, so it cannot be located as a whole. It is anchored to the first
+   * line of its section and carries the section as the excerpt: still a pointer,
+   * just a wider one.
+   */
+  const pushSection = (key: string, value: string, first: string): void => {
+    if (!value) return;
+    const hit = locate(raw.pages, first) ?? locate(raw.pages, value.split(",")[0]!.trim());
+    if (!hit) {
+      unplaced.push({ key, value });
+      return;
+    }
+    facts.push({
+      key,
+      value,
+      source: {
+        kind: "document",
+        file,
+        page: hit.page,
+        bbox: hit.bbox,
+        confidence: 0.9,
+        ...(raw.format === "text" ? { line: hit.line + 1, excerpt: value } : {}),
+      },
+    });
+    labelled++;
+  };
+
+  const sections: Record<string, string[]> = {};
+  let active: "skills" | "certifications" | "other" | null = null;
+
   for (const page of raw.pages) {
     for (const line of page.lines) {
       lines++;
+      const plain = line.text.trim();
+      const headingText = plain.replace(/[:*]+$/, "");
+
+      const heading = HEADINGS.exec(headingText);
+      if (heading) {
+        const name = heading[1]!.toLowerCase();
+        active = /skill|competenc/i.test(name)
+          ? "skills"
+          : /certif|licen|award|achiev/i.test(name)
+            ? "certifications"
+            : "other";
+        // "Skills: Python, Go" is a heading and its contents on one line.
+        const inline = plain.slice(plain.indexOf(":") + 1).trim();
+        if (active !== "other" && plain.includes(":") && inline) {
+          (sections[active] ??= []).push(inline);
+        }
+        continue;
+      }
+
+      if (active && active !== "other") {
+        const cleaned = plain.replace(/^[•·\-*–—]\s*/, "").trim();
+        if (cleaned && !/:/.test(cleaned)) {
+          (sections[active] ??= []).push(cleaned);
+          continue;
+        }
+      }
+
       const cut = line.text.indexOf(":");
       if (cut < 1) continue;
 
@@ -150,7 +228,46 @@ export function extractDocument(file: string, raw: RawDoc, digest: string): Extr
       }
 
       const mapped = LABELS.find(([re]) => re.test(label));
-      if (mapped) push(mapped[1], value);
+      if (mapped) {
+        // "CGPA: 8.6/10" and "CGPA: 8.6" are the same claim about the same
+        // person; the scale is not part of the value.
+        // "8.6/10" is the same claim as "8.6"; the scale is not part of the
+        // value, but the pointer still has to be at what the page says.
+        if (mapped[1] === KEY.educationGpa) {
+          push(mapped[1], value.replace(/\s*\/\s*\d+(?:\.\d+)?$/, ""), value);
+        } else {
+          push(mapped[1], value);
+        }
+      }
+    }
+  }
+
+  // Lists assembled from a section.
+  for (const key of ["skills", "certifications"] as const) {
+    const bucket = sections[key] ?? [];
+    const items = bucket
+      .flatMap((l) => l.split(/[,;|•·]/))
+      .map((s) => s.replace(/\s+/g, " ").trim())
+      .filter((s) => s.length > 1 && s.length < 60);
+    const unique = [...new Set(items)];
+    if (unique.length) {
+      pushSection(key === "skills" ? KEY.skills : KEY.certifications, unique.join(", "), unique[0]!);
+    }
+  }
+
+  // A resume does not label its own email or phone; they are just there.
+  if (kind === "resume") {
+    if (!facts.some((f) => f.key === KEY.personEmail)) {
+      const email = EMAIL.exec(text)?.[0];
+      if (email) push(KEY.personEmail, email);
+    }
+    if (!facts.some((f) => f.key === KEY.personPhone)) {
+      const phone = PHONE.exec(text)?.[0];
+      if (phone) push(KEY.personPhone, phone.replace(/\s+/g, " ").trim());
+    }
+    if (!facts.some((f) => f.key === KEY.personName)) {
+      const first = raw.pages[0]?.lines.find((l) => /^[A-Z][A-Za-z.'-]+(?:\s+[A-Z][A-Za-z.'-]+){1,3}$/.test(l.text.trim()));
+      if (first && !HEADINGS.test(first.text.trim())) push(KEY.personName, first.text.trim());
     }
   }
 
@@ -185,7 +302,7 @@ function titleOf(raw: RawDoc, file: string): string {
   const texts = lines.map((l) => l.text.trim()).filter(Boolean);
   const head = texts[0] ?? file;
   const title = texts[1] ?? head;
-  return title === head ? file.replace(/\.pdf$/i, "") : title;
+  return title === head ? file.replace(/\.(pdf|docx|txt|md)$/i, "") : title;
 }
 
 function titleCase(s: string): string {

@@ -1,0 +1,232 @@
+{
+  "file": "resume.docx",
+  "title": "Email: priyam.sharma@example.edu",
+  "kind": "resume",
+  "pages": 1,
+  "confidence": 0.98,
+  "digest": "sha256:e414b96c3516fb2f009e4c879cb9e93b292643ac0e49080da06e7f090d67b074",
+  "readable": true,
+  "facts": [
+    {
+      "key": "person.email",
+      "value": "priyam.sharma@example.edu",
+      "source": {
+        "kind": "document",
+        "file": "resume.docx",
+        "page": 0,
+        "bbox": {
+          "x": 0.1608,
+          "y": 0.0808,
+          "w": 0.2941,
+          "h": 0.0139
+        },
+        "confidence": 0.98,
+        "line": 2,
+        "excerpt": "Email: priyam.sharma@example.edu"
+      }
+    },
+    {
+      "key": "person.phone.mobile",
+      "value": "+91 98200 11223",
+      "source": {
+        "kind": "document",
+        "file": "resume.docx",
+        "page": 0,
+        "bbox": {
+          "x": 0.1608,
+          "y": 0.101,
+          "w": 0.1765,
+          "h": 0.0139
+        },
+        "confidence": 0.98,
+        "line": 3,
+        "excerpt": "Phone: +91 98200 11223"
+      }
+    },
+    {
+      "key": "address.current.line1",
+      "value": "44 MG Road",
+      "source": {
+        "kind": "document",
+        "file": "resume.docx",
+        "page": 0,
+        "bbox": {
+          "x": 0.1843,
+          "y": 0.1212,
+          "w": 0.1294,
+          "h": 0.0139
+        },
+        "confidence": 0.98,
+        "line": 4,
+        "excerpt": "Address: 44 MG Road, Pune 411001"
+      }
+    },
+    {
+      "key": "address.current.city",
+      "value": "Pune",
+      "source": {
+        "kind": "document",
+        "file": "resume.docx",
+        "page": 0,
+        "bbox": {
+          "x": 0.3255,
+          "y": 0.1212,
+          "w": 0.0471,
+          "h": 0.0139
+        },
+        "confidence": 0.98,
+        "line": 4,
+        "excerpt": "Address: 44 MG Road, Pune 411001"
+      }
+    },
+    {
+      "key": "address.current.postcode",
+      "value": "411001",
+      "source": {
+        "kind": "document",
+        "file": "resume.docx",
+        "page": 0,
+        "bbox": {
+          "x": 0.3843,
+          "y": 0.1212,
+          "w": 0.0706,
+          "h": 0.0139
+        },
+        "confidence": 0.98,
+        "line": 4,
+        "excerpt": "Address: 44 MG Road, Pune 411001"
+      }
+    },
+    {
+      "key": "education.institution",
+      "value": "Testland Institute of Technology",
+      "source": {
+        "kind": "document",
+        "file": "resume.docx",
+        "page": 0,
+        "bbox": {
+          "x": 0.2314,
+          "y": 0.3232,
+          "w": 0.3765,
+          "h": 0.0139
+        },
+        "confidence": 0.98,
+        "line": 14,
+        "excerpt": "Institution: Testland Institute of Technology"
+      }
+    },
+    {
+      "key": "education.programme",
+      "value": "B.Tech Computer Engineering",
+      "source": {
+        "kind": "document",
+        "file": "resume.docx",
+        "page": 0,
+        "bbox": {
+          "x": 0.2078,
+          "y": 0.3434,
+          "w": 0.3176,
+          "h": 0.0139
+        },
+        "confidence": 0.98,
+        "line": 15,
+        "excerpt": "Programme: B.Tech Computer Engineering"
+      }
+    },
+    {
+      "key": "education.year",
+      "value": "4",
+      "source": {
+        "kind": "document",
+        "file": "resume.docx",
+        "page": 0,
+        "bbox": {
+          "x": 0.149,
+          "y": 0.3636,
+          "w": 0.0118,
+          "h": 0.0139
+        },
+        "confidence": 0.98,
+        "line": 16,
+        "excerpt": "Year: 4"
+      }
+    },
+    {
+      "key": "education.gpa",
+      "value": "8.6",
+      "source": {
+        "kind": "document",
+        "file": "resume.docx",
+        "page": 0,
+        "bbox": {
+          "x": 0.149,
+          "y": 0.3838,
+          "w": 0.0353,
+          "h": 0.0139
+        },
+        "confidence": 0.98,
+        "line": 17,
+        "excerpt": "CGPA: 8.6"
+      }
+    },
+    {
+      "key": "skills.list",
+      "value": "Python, TypeScript, SQL, React, Docker, Git",
+      "source": {
+        "kind": "document",
+        "file": "resume.docx",
+        "page": 0,
+        "bbox": {
+          "x": 0.0784,
+          "y": 0.2222,
+          "w": 0.0824,
+          "h": 0.0139
+        },
+        "confidence": 0.9,
+        "line": 9,
+        "excerpt": "Python, TypeScript, SQL, React, Docker, Git"
+      }
+    },
+    {
+      "key": "certifications.list",
+      "value": "AWS Certified Cloud Practitioner, Google Data Analytics Certificate",
+      "source": {
+        "kind": "document",
+        "file": "resume.docx",
+        "page": 0,
+        "bbox": {
+          "x": 0.0784,
+          "y": 0.2626,
+          "w": 0.3765,
+          "h": 0.0139
+        },
+        "confidence": 0.9,
+        "line": 11,
+        "excerpt": "AWS Certified Cloud Practitioner, Google Data Analytics Certificate"
+      }
+    },
+    {
+      "key": "person.full_name",
+      "value": "PRIYAM SHARMA",
+      "source": {
+        "kind": "document",
+        "file": "resume.docx",
+        "page": 0,
+        "bbox": {
+          "x": 0.0784,
+          "y": 0.0606,
+          "w": 0.1529,
+          "h": 0.0139
+        },
+        "confidence": 0.98,
+        "line": 1,
+        "excerpt": "PRIYAM SHARMA"
+      }
+    }
+  ],
+  "stats": {
+    "lines": 17,
+    "labelled": 12,
+    "unplaced": []
+  }
+}

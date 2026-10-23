@@ -117,10 +117,12 @@ export function annotateEssay(
   const used = new Set(annotated.flatMap((a) => a.usedKeys));
 
   let refused: string | undefined;
+  let refusedKind: EssayDraft["refusedKind"];
   if (used.size < 3) {
+    refusedKind = used.size === 0 ? "no-facts" : "thin";
     refused =
       used.size === 0
-        ? "This question has no facts behind it yet. Answer a few fields first, then try again."
+        ? "Nothing in your folder or your notes is about this question, so this one is yours to answer."
         : `Only ${used.size} fact${used.size === 1 ? "" : "s"} in your folder relate to this question. A draft from ${used.size} fact${used.size === 1 ? "" : "s"} would be mostly filler, so this box is yours.`;
   }
 
@@ -140,6 +142,7 @@ export function annotateEssay(
     text: over ? trimToWords(text, maxWords) : text,
     wordCount: Math.min(words, maxWords),
     refused,
+    refusedKind,
   };
 }
 
@@ -188,7 +191,9 @@ export function attributeFacts(
         supports.add(f.key);
         continue;
       }
-      const long = v.split(/\s+/).filter((t) => t.length >= 5);
+      // Commas and bullets are punctuation, not part of a word: "Python,
+      // TypeScript" has to match a sentence that says "Python and TypeScript".
+      const long = v.split(/[^\p{L}\p{N}.+#]+/u).filter((t) => t.length >= 5);
       const shared = long.filter((t) => flat.includes(t));
       if (long.length >= 2 && shared.length / long.length >= 0.6) supports.add(f.key);
     }
@@ -205,6 +210,14 @@ export function attributeFacts(
  * The draft you get when no model is running. Short, plain, and entirely made
  * of facts, so the checker has nothing to strike.
  */
+/**
+ * A paragraph with no model in it.
+ *
+ * Every sentence is a fact from the folder, joined with the smallest amount of
+ * grammar that makes it read like a person. It is not stylish, and it is not
+ * meant to be: it is what the app can say when there is no model, and every
+ * line of it can be pointed at.
+ */
 export function composeDraft(facts: { key: string; value: string }[]): string {
   const get = (key: string) => facts.find((f) => f.key === key)?.value;
   const parts: string[] = [];
@@ -214,6 +227,8 @@ export function composeDraft(facts: { key: string; value: string }[]): string {
   const gpa = get("education.gpa");
   const role = get("employment.role");
   const employer = get("employment.employer");
+  const skills = get("skills.list");
+  const certifications = get("certifications.list");
 
   if (programme && institution) {
     parts.push(`I am studying ${programme} at ${institution}${year ? `, in my year ${year}` : ""}.`);
@@ -221,8 +236,29 @@ export function composeDraft(facts: { key: string; value: string }[]): string {
     parts.push(`I am studying ${programme}.`);
   }
   if (gpa) parts.push(`My cumulative grade point average is ${gpa}.`);
+  if (skills) parts.push(`I work with ${skills.split(",").slice(0, 5).map((s) => s.trim()).join(", ")}.`);
+  if (certifications) {
+    const first = certifications.split(",").slice(0, 2).map((s) => s.trim()).join(" and ");
+    parts.push(`I am certified in ${first}.`);
+  }
   if (role && employer) parts.push(`I am working as a ${role} at ${employer}.`);
   if (!parts.length) return "";
-  parts.push("I would like to be considered for this award.");
   return parts.join(" ");
+}
+
+/**
+ * A question the folder cannot answer, whatever the model writes.
+ *
+ * "Why do you want to work at this company?" is not a gap in the documents; it
+ * is a question about the company, and the company is not in the folder. The
+ * honest answer is to leave it to the person, not to pad it with a resume.
+ */
+const ABOUT_THE_COMPANY = [
+  /\b(?:this|our|the)\s+(?:company|employer|organisation|organization|firm|startup|business)\b/i,
+  /\bwhat do you know about (?:us|our (?:company|product|team))\b/i,
+  /\bwhy\b[^?]*\b(?:join|work (?:at|for)|choose|want to work)\b/i,
+];
+
+export function needsYou(question: string): boolean {
+  return ABOUT_THE_COMPANY.some((re) => re.test(question));
 }

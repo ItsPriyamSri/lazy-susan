@@ -39,7 +39,10 @@ export const KEY = {
   refereePhone: "referee.1.phone",
 
   skills: "skills.list",
+  certifications: "certifications.list",
   summary: "person.summary",
+  /** Free text a person wrote about themselves. Attested only; no form asks for it. */
+  context: "person.context",
 } as const;
 
 export type KeyName = (typeof KEY)[keyof typeof KEY];
@@ -71,7 +74,9 @@ export const KEY_LABEL: Record<string, string> = {
   [KEY.refereeName]: "Referee name",
   [KEY.refereePhone]: "Referee phone",
   [KEY.skills]: "Skills",
+  [KEY.certifications]: "Certifications",
   [KEY.summary]: "Short summary",
+  [KEY.context]: "About you",
 };
 
 /**
@@ -104,5 +109,15 @@ export const KIND_KEYS: Record<string, string[]> = {
   income_proof: [KEY.personName, KEY.employmentEmployer, KEY.employmentRole, KEY.employmentIncome],
   education: [KEY.personName, KEY.educationInstitution, KEY.educationProgramme, KEY.educationYear, KEY.educationGpa],
   reference: [KEY.refereeName, KEY.refereePhone],
+  resume: [
+    KEY.personName,
+    KEY.personEmail,
+    KEY.personPhone,
+    KEY.educationInstitution,
+    KEY.educationProgramme,
+    KEY.educationGpa,
+    KEY.skills,
+    KEY.certifications,
+  ],
   other: [KEY.personName],
 };

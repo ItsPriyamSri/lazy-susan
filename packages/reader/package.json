@@ -4,8 +4,12 @@
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
-  "exports": { ".": "./dist/index.js" },
-  "files": ["dist"],
+  "exports": {
+    ".": "./dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
@@ -13,7 +17,8 @@
     "read": "tsx src/cli.ts"
   },
   "dependencies": {
-    "@lazy-susan/core": "workspace:*"
+    "@lazy-susan/core": "workspace:*",
+    "fflate": "^0.8.2"
   },
   "devDependencies": {
     "tsx": "^4.19.2",

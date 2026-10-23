@@ -18,7 +18,7 @@ export { listControls, labelFor } from "./controls.js";
 export type { Control } from "./controls.js";
 export { keyFor, coerce } from "./map.js";
 export type { Coerced } from "./map.js";
-export { openPortal, portalMode } from "./session.js";
+export { normaliseLabel, openPortal, portalMode } from "./session.js";
 export type { OpenOptions, Outcome, OutcomeStatus, PagePlan, PortalSession } from "./session.js";
 
 export interface PortalField {

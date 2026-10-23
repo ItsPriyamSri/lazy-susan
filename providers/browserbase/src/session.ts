@@ -20,6 +20,14 @@ const LOCAL_BROWSERS = [
   "/usr/bin/chromium-browser",
 ];
 
+/** "Why should we hire you?" and "why should we hire you" are the same label. */
+export function normaliseLabel(label: string): string {
+  return label
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
 export function portalMode(): "local" | "browserbase" {
   return process.env.BROWSERBASE_API_KEY ? "browserbase" : "local";
 }
@@ -38,6 +46,11 @@ export interface PagePlan {
   open: Record<string, string>;
   /** key → absolute path, for file inputs. */
   files?: Record<string, string>;
+  /**
+   * Normalised label → key, from a form spec. A textarea asking "Why should we
+   * hire you?" has no name a rule could read, and the spec knows the answer.
+   */
+  byLabel?: Record<string, string>;
 }
 
 export type OutcomeStatus = "filled" | "open" | "unusable" | "not-ours";
@@ -165,8 +178,8 @@ export async function openPortal(options: OpenOptions): Promise<PortalSession> {
       const marks: { handle: string; colour: string }[] = [];
 
       for (const control of controls) {
-        const key = keyFor(control);
         const label = labelFor(control);
+        const key = plan.byLabel?.[normaliseLabel(label)] ?? keyFor(control);
 
         if (!key) {
           outcomes.push({ handle: control.handle, label, key: null, tag: control.tag, type: control.type, status: "not-ours" });
