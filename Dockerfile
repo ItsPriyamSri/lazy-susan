@@ -1,6 +1,7 @@
-# The app reads a folder of documents and writes a filled form. Nothing in the
-# request path needs a database, a browser, or a model, so the image is a node
-# base and the code.
+# The app reads a folder of documents, fills a form, and can open a browser on
+# a page to type the result. The browser is the only system dependency: it is
+# here so the fill works on a deployment with no key at all. Headless, because
+# a container has no screen.
 
 FROM node:22-slim
 
@@ -9,6 +10,15 @@ ENV PNPM_HOME=/pnpm \
     NODE_ENV=production
 
 RUN corepack enable && corepack prepare pnpm@10.33.0 --activate
+
+# Chromium and a font it can draw text with. Without these the portal route has
+# nothing to launch on a host that is not a laptop.
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends chromium fonts-liberation \
+ && rm -rf /var/lib/apt/lists/*
+
+ENV CHROME_PATH=/usr/bin/chromium \
+    PORTAL_HEADLESS=1
 
 WORKDIR /app
 

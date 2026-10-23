@@ -337,7 +337,10 @@ app.post("/api/portal/start", async (c) => {
     if (!view.draft.refused && view.draft.text) plan.values[essayField.key] = view.draft.text;
   }
 
-  const url = `${new URL(c.req.url).origin}/forms/${spec.id}.html`;
+  // The browser runs next to the server, so it talks to it over loopback. The
+  // request's own origin is the public one and may not be reachable from in
+  // here, and on a mapped port it is not the port the server listens on.
+  const url = `http://127.0.0.1:${Number(process.env.PORT ?? 4757)}/forms/${spec.id}.html`;
   const portal = await withSpan(`portal ${spec.id}`, "portal", () =>
     startPortal({ url, formId: spec.id, plan }),
   );
